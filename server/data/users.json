@@ -1,0 +1,52 @@
+[
+  {
+    "id": "1",
+    "email": "student@placepro.com",
+    "password": "Demo@1234",
+    "role": "student",
+    "name": "Arjun Sharma",
+    "college": "IIT Delhi",
+    "branch": "Computer Science",
+    "gradYear": "2025"
+  },
+  {
+    "id": "2",
+    "email": "admin@placepro.com",
+    "password": "Demo@1234",
+    "role": "admin",
+    "name": "Admin User",
+    "college": "PlacePro HQ",
+    "branch": "Administration",
+    "gradYear": "2020"
+  },
+  {
+    "id": "1791092053765",
+    "email": "test@college.edu",
+    "password": "Pass123",
+    "role": "student",
+    "name": "Test User",
+    "college": "NIT Trichy",
+    "branch": "CSE",
+    "gradYear": "2026"
+  },
+  {
+    "id": "1791262201154",
+    "email": "dpatil380@rku.ac.in",
+    "password": "Dhruv@1677",
+    "role": "student",
+    "name": "Dhruv Patil",
+    "college": "RK UNIVERSITY",
+    "branch": "CS",
+    "gradYear": "2027"
+  },
+  {
+    "id": "1792347175757",
+    "email": "rk@gmail.com",
+    "password": "11223344",
+    "role": "student",
+    "name": "Dhruv Patil",
+    "college": "IIT Delhi",
+    "branch": "CS",
+    "gradYear": "2027"
+  }
+]

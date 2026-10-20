@@ -1,0 +1,203 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      String   @default("student")
+  name      String
+  college   String?
+  branch    String?
+  gradYear  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resume             Resume?
+  progress           Progress?
+  studentProfile     Student?
+  testResults        AptitudeResult[]
+  codingSubmissions  CodingSubmission[]
+  solvedProblems     SolvedProblem[]
+  interviewSessions  InterviewSession[]
+}
+
+model Resume {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName        String?
+  email           String?
+  phone           String?
+  location        String?
+  linkedin        String?
+  github          String?
+  summary         String?
+  education       String?  // JSON string
+  projects        String?  // JSON string
+  technicalSkills String?  // JSON string
+  skills          String?  // JSON string
+  certifications  String?  // JSON string
+  experience      String?  // JSON string
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Student {
+  id        String   @id @default(cuid())
+  userId    String?  @unique
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  email     String   @unique
+  branch    String
+  gradYear  String
+  readiness Int      @default(0)
+  status    String   @default("Active")
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Drive {
+  id          String   @id @default(cuid())
+  company     String
+  abbr        String?
+  title       String
+  status      String   @default("Upcoming")
+  date        String
+  eligibility String?
+  package     String?
+  registered  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Question {
+  id         String   @id @default(cuid())
+  category   String
+  difficulty String
+  question   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Progress {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  readinessScore    Int      @default(0)
+  resumeProgress    Int      @default(0)
+  aptitudeProgress  Int      @default(0)
+  codingProgress    Int      @default(0)
+  interviewProgress Int      @default(0)
+  roadmap           String?  // JSON string
+  achievements      String?  // JSON string
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model AptitudeTest {
+  id             String   @id @default(cuid())
+  title          String
+  category       String
+  duration       Int      @default(15)
+  totalQuestions Int      @default(10)
+  questionsData  String   // JSON string of questions array
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model AptitudeResult {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testId     String
+  testTitle  String
+  score      Int
+  correct    Int
+  total      Int
+  date       DateTime @default(now())
+  breakdown  String   // JSON string
+}
+
+model CodingProblem {
+  id          String   @id @default(cuid())
+  title       String
+  difficulty  String
+  category    String
+  description String
+  examples    String?  // JSON string
+  constraints String?  // JSON string
+  starterCode String?  // JSON string
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CodingSubmission {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problemId    String
+  problemTitle String
+  language     String
+  status       String
+  runtime      String?
+  memory       String?
+  submittedAt  DateTime @default(now())
+}
+
+model SolvedProblem {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problemId String
+  solvedAt  DateTime @default(now())
+
+  @@unique([userId, problemId])
+}
+
+model InterviewTopic {
+  id            String   @id @default(cuid())
+  title         String
+  category      String
+  icon          String?
+  questionCount Int      @default(5)
+  questions     String   // JSON string array
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model InterviewSession {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId     String
+  topicTitle  String
+  answers     String   // JSON string
+  score       Int?
+  feedback    String?
+  completedAt DateTime @default(now())
+}
+
+model Company {
+  id            String   @id @default(cuid())
+  name          String
+  logo          String?
+  role          String
+  package       String
+  location      String
+  eligible      Boolean  @default(true)
+  type          String   @default("Product")
+  about         String?
+  hiringProcess String?  // JSON string
+  rounds        String?  // JSON string
+  requirements  String?  // JSON string
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
