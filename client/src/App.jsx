@@ -9,14 +9,20 @@ import AptitudeTestPage from './pages/AptitudeTestPage';
 import CodingPage from './pages/CodingPage';
 import CodingProblemPage from './pages/CodingProblemPage';
 import InterviewPage from './pages/InterviewPage';
+import InterviewSimPage from './pages/InterviewSimPage';
 import CompaniesPage from './pages/CompaniesPage';
 import CompanyDetailPage from './pages/CompanyDetailPage';
+import DriveDetailPage from './pages/DriveDetailPage';
 import ProgressPage from './pages/ProgressPage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminStudents from './pages/AdminStudents';
+import AdminCompanies from './pages/AdminCompanies';
 import AdminDrives from './pages/AdminDrives';
+import AdminApplications from './pages/AdminApplications';
 import AdminQuestionBank from './pages/AdminQuestionBank';
 import AdminReports from './pages/AdminReports';
+import AdminNotifications from './pages/AdminNotifications';
+import AdminSettings from './pages/AdminSettings';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function StudentRoute({ children }) {
@@ -52,17 +58,22 @@ export default function App() {
         <Route path="/student/coding" element={<StudentRoute><CodingPage /></StudentRoute>} />
         <Route path="/student/coding/:id" element={<StudentRoute><CodingProblemPage /></StudentRoute>} />
         <Route path="/student/interview" element={<StudentRoute><InterviewPage /></StudentRoute>} />
-        <Route path="/student/interview/:topicId" element={<StudentRoute><InterviewPage /></StudentRoute>} />
+        <Route path="/student/interview/:topicId" element={<StudentRoute><InterviewSimPage /></StudentRoute>} />
         <Route path="/student/companies" element={<StudentRoute><CompaniesPage /></StudentRoute>} />
         <Route path="/student/companies/:id" element={<StudentRoute><CompanyDetailPage /></StudentRoute>} />
+        <Route path="/student/drives/:id" element={<StudentRoute><DriveDetailPage /></StudentRoute>} />
         <Route path="/student/progress" element={<StudentRoute><ProgressPage /></StudentRoute>} />
 
         {/* Admin routes */}
         <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
         <Route path="/admin/students" element={<AdminRoute><AdminStudents /></AdminRoute>} />
+        <Route path="/admin/companies" element={<AdminRoute><AdminCompanies /></AdminRoute>} />
         <Route path="/admin/drives" element={<AdminRoute><AdminDrives /></AdminRoute>} />
+        <Route path="/admin/applications" element={<AdminRoute><AdminApplications /></AdminRoute>} />
         <Route path="/admin/question-bank" element={<AdminRoute><AdminQuestionBank /></AdminRoute>} />
         <Route path="/admin/reports" element={<AdminRoute><AdminReports /></AdminRoute>} />
+        <Route path="/admin/notifications" element={<AdminRoute><AdminNotifications /></AdminRoute>} />
+        <Route path="/admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
 
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
@@ -70,4 +81,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-

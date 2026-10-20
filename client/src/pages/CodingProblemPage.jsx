@@ -184,11 +184,31 @@ export default function CodingProblemPage() {
 
             {/* Output */}
             {output && (
-              <div className={`code-output ${output.type}`}>
-                {output.text}
-                {output.runtime && (
-                  <div style={{ marginTop: '8px', opacity: 0.6 }}>
-                    Runtime: {output.runtime} | Memory: {output.memory}
+              <div style={{ borderTop: '1px solid #e5e7eb' }}>
+                <div style={{ padding: '10px 16px', background: '#1e1e1e', borderBottom: '1px solid #333' }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: output.type === 'success' ? '#4ade80' : '#f87171' }}>
+                    {output.type === 'success' ? '✅ Tests Passed' : '❌ Tests Failed'}
+                  </span>
+                  {output.runtime && <span style={{ fontSize: 11, color: '#9ca3af', marginLeft: 12 }}>Runtime: {output.runtime}</span>}
+                </div>
+                {output.testResults?.length > 0 ? (
+                  <div style={{ background: '#1e1e1e', padding: '8px 16px' }}>
+                    {output.testResults.map((r, i) => (
+                      <div key={i} style={{ marginBottom: 8, padding: '8px 10px', background: r.passed ? 'rgba(74,222,128,0.05)' : 'rgba(248,113,113,0.05)', borderRadius: 6, border: `1px solid ${r.passed ? 'rgba(74,222,128,0.2)' : 'rgba(248,113,113,0.2)'}` }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: r.passed ? '#4ade80' : '#f87171', marginBottom: 4 }}>
+                          Test {i + 1}: {r.passed ? 'Passed ✓' : 'Failed ✗'}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#9ca3af', fontFamily: 'monospace' }}>
+                          <div>Input: {r.input}</div>
+                          <div>Expected: <span style={{ color: '#4ade80' }}>{r.expected}</span></div>
+                          {!r.passed && <div>Got: <span style={{ color: '#f87171' }}>{r.actual}</span></div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ background: '#1e1e1e', padding: '12px 16px', fontFamily: 'monospace', fontSize: 13, color: output.type === 'success' ? '#4ade80' : '#f87171', whiteSpace: 'pre-wrap' }}>
+                    {output.text}
                   </div>
                 )}
               </div>
@@ -196,22 +216,38 @@ export default function CodingProblemPage() {
 
             {/* Submission result */}
             {submissionResult && (
-              <div
-                className="code-output"
-                style={{
+              <div style={{ borderTop: '1px solid #e5e7eb' }}>
+                <div style={{
+                  padding: '12px 16px', background: '#1e1e1e',
                   borderLeft: `4px solid ${submissionResult.status === 'Accepted' ? '#4ade80' : '#f87171'}`,
-                  color: submissionResult.status === 'Accepted' ? '#4ade80' : '#f87171',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}
-              >
-                {submissionResult.status === 'Accepted'
-                  ? <CheckCircle size={16} />
-                  : <XCircle size={16} />}
-                {submissionResult.status}
-                {submissionResult.runtime && ` · ${submissionResult.runtime}`}
-                {submissionResult.memory && ` · ${submissionResult.memory}`}
+                  display: 'flex', alignItems: 'center', gap: 8,
+                }}>
+                  {submissionResult.status === 'Accepted'
+                    ? <CheckCircle size={16} color="#4ade80" />
+                    : <XCircle size={16} color="#f87171" />}
+                  <span style={{ fontSize: 14, fontWeight: 700, color: submissionResult.status === 'Accepted' ? '#4ade80' : '#f87171' }}>
+                    {submissionResult.status}
+                  </span>
+                  {submissionResult.runtime && <span style={{ fontSize: 12, color: '#9ca3af', marginLeft: 4 }}>· {submissionResult.runtime}</span>}
+                  {submissionResult.memory && <span style={{ fontSize: 12, color: '#9ca3af' }}>· {submissionResult.memory}</span>}
+                  {submissionResult.total > 0 && (
+                    <span style={{ fontSize: 12, color: '#9ca3af', marginLeft: 4 }}>
+                      · {submissionResult.passed}/{submissionResult.total} test cases
+                    </span>
+                  )}
+                </div>
+                {submissionResult.testResults?.length > 0 && (
+                  <div style={{ background: '#1e1e1e', padding: '8px 16px' }}>
+                    {submissionResult.testResults.map((r, i) => (
+                      <div key={i} style={{ marginBottom: 6, padding: '6px 10px', background: r.passed ? 'rgba(74,222,128,0.05)' : 'rgba(248,113,113,0.05)', borderRadius: 6 }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: r.passed ? '#4ade80' : '#f87171' }}>
+                          Test {i + 1}: {r.passed ? 'Passed ✓' : 'Failed ✗'}
+                          {!r.passed && <span style={{ color: '#9ca3af', marginLeft: 8, fontFamily: 'monospace' }}>Expected: {r.expected} | Got: {r.actual}</span>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

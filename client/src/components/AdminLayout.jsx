@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Briefcase, BookOpen, BarChart2,
-  LogOut, Menu, X,
+  Building2, FileText, Bell, Settings, LogOut, Menu, X, ChevronRight,
 } from 'lucide-react';
 import PlaceProLogo from './PlaceProLogo';
 import { authService } from '../services/authService';
@@ -10,11 +10,15 @@ import '../styles/dashboard.css';
 import '../styles/admin.css';
 
 const navItems = [
-  { id: 'overview',      label: 'Overview',      icon: LayoutDashboard, to: '/admin/dashboard' },
-  { id: 'students',      label: 'Students',       icon: Users,           to: '/admin/students' },
-  { id: 'drives',        label: 'Drives',         icon: Briefcase,       to: '/admin/drives' },
-  { id: 'questionbank',  label: 'Question Bank',  icon: BookOpen,        to: '/admin/question-bank' },
-  { id: 'reports',       label: 'Reports',        icon: BarChart2,       to: '/admin/reports' },
+  { id: 'overview',      label: 'Overview',         icon: LayoutDashboard, to: '/admin/dashboard' },
+  { id: 'students',      label: 'Students',          icon: Users,           to: '/admin/students' },
+  { id: 'companies',     label: 'Companies',         icon: Building2,       to: '/admin/companies' },
+  { id: 'drives',        label: 'Placement Drives',  icon: Briefcase,       to: '/admin/drives' },
+  { id: 'applications',  label: 'Applications',      icon: FileText,        to: '/admin/applications' },
+  { id: 'questionbank',  label: 'Question Bank',     icon: BookOpen,        to: '/admin/question-bank' },
+  { id: 'reports',       label: 'Reports',           icon: BarChart2,       to: '/admin/reports' },
+  { id: 'notifications', label: 'Notifications',     icon: Bell,            to: '/admin/notifications' },
+  { id: 'settings',      label: 'Settings',          icon: Settings,        to: '/admin/settings' },
 ];
 
 export default function AdminLayout({ children, headerTitle = 'ADMIN PORTAL' }) {
@@ -66,7 +70,8 @@ export default function AdminLayout({ children, headerTitle = 'ADMIN PORTAL' }) 
               onClick={() => setSidebarOpen(false)}
             >
               <Icon size={17} className="sidebar-nav-icon" />
-              {label}
+              <span style={{ flex: 1 }}>{label}</span>
+              <ChevronRight size={13} style={{ opacity: 0.3 }} />
             </NavLink>
           ))}
         </nav>

@@ -85,7 +85,15 @@ export default function CompaniesPage() {
                 <div className="company-card-logo" style={{ fontWeight: 800, fontSize: '18px', color: '#0B1224' }}>
                   {comp.logo || comp.name.slice(0, 2).toUpperCase()}
                 </div>
-                <div className="company-card-diff-badge">
+                <div className="company-card-diff-badge" style={{ display: 'flex', gap: 6 }}>
+                  {comp.activeDrivesCount > 0 && (
+                    <span style={{
+                      fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 12,
+                      background: 'rgba(16,185,129,0.12)', color: '#10b981'
+                    }}>
+                      Hiring ({comp.activeDrivesCount})
+                    </span>
+                  )}
                   <span className={`diff-badge ${comp.difficulty.toLowerCase()}`}>
                     {comp.difficulty}
                   </span>
@@ -104,10 +112,9 @@ export default function CompaniesPage() {
                     </span>
                   </div>
                   <div className="company-card-stat-row">
-                    <span className="company-card-stat-label">Questions</span>
-                    <span className="company-card-stat-value">
-                      <HelpCircle size={13} style={{ display: 'inline', marginRight: 3, verticalAlign: 'middle' }} />
-                      {comp.questions} Qs
+                    <span className="company-card-stat-label">Active Drives</span>
+                    <span className="company-card-stat-value" style={{ color: comp.activeDrivesCount > 0 ? '#10b981' : '#6b7280', fontWeight: comp.activeDrivesCount > 0 ? 700 : 500 }}>
+                      {comp.activeDrivesCount > 0 ? `${comp.activeDrivesCount} Open` : 'None active'}
                     </span>
                   </div>
                 </div>

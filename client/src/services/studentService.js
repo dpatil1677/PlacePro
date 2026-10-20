@@ -50,8 +50,8 @@ export const codingApi = {
 export const interviewApi = {
   listTopics: (category) => request('GET', `/interview/topics${category ? `?category=${category}` : ''}`),
   getQuestions: (topicId) => request('GET', `/interview/topics/${topicId}/questions`),
-  submitAnswer: (topicId, questionId, answer) =>
-    request('POST', '/interview/submit', { topicId, questionId, answer }),
+  submitAnswer: (topicId, topicTitle, answers, score, feedback, category) =>
+    request('POST', '/interview/submit', { topicId, topicTitle, answers, score, feedback, category }),
   getSessions: () => request('GET', '/interview/sessions'),
 };
 
@@ -68,8 +68,21 @@ export const companiesApi = {
   get: (id) => request('GET', `/companies/${id}`),
 };
 
+// Drives (student-facing: view + apply)
+export const studentDrivesApi = {
+  list: () => request('GET', '/drives'),
+  get: (id) => request('GET', `/drives/${id}`),
+  apply: (driveId) => request('POST', '/drives/apply', { driveId }),
+  getMyApplications: () => request('GET', '/drives/applications'),
+};
+
 // Progress
 export const progressApi = {
   get: () => request('GET', '/progress'),
   getAchievements: () => request('GET', '/achievements'),
+};
+
+// Notifications
+export const notificationsApi = {
+  get: () => request('GET', '/notifications'),
 };

@@ -8,6 +8,8 @@ import {
   getResume, updateResume, exportResume,
   listCompanies, getCompany,
   getProgress, getAchievements,
+  listDrivesForStudent, getDrive, applyToDrive, getMyApplications,
+  getStudentNotifications,
 } from '../controllers/studentController.js';
 
 const router = Router();
@@ -45,8 +47,17 @@ router.post('/resume/export', exportResume);
 router.get('/companies', listCompanies);
 router.get('/companies/:id', getCompany);
 
+// Drives (student-facing)
+router.get('/drives', listDrivesForStudent);
+router.get('/drives/:id', getDrive);
+router.post('/drives/apply', applyToDrive);
+router.get('/drives/applications', getMyApplications);
+
 // Progress
 router.get('/progress', getProgress);
 router.get('/achievements', getAchievements);
+
+// Notifications
+router.get('/notifications', getStudentNotifications);
 
 export default router;

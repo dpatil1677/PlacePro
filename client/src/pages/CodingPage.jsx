@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Code2, Flame, BarChart2, CheckCircle2 } from 'lucide-react';
+import { Search, Code2, Flame, BarChart2, CheckCircle2, Download } from 'lucide-react';
 import StudentLayout from '../components/StudentLayout';
 import { codingApi } from '../services/studentService';
 import '../styles/student.css';
@@ -11,6 +11,20 @@ function diffClass(d) {
 
 const TOPICS = ['All', 'Arrays', 'Strings', 'Dynamic Programming', 'Graphs', 'Trees', 'Math', 'Sorting'];
 const DIFFICULTIES = ['All', 'Easy', 'Medium', 'Hard'];
+
+function downloadCSV(data, filename) {
+  if (!data || !data.length) return;
+  const headers = Object.keys(data[0]);
+  const rows = data.map(row => headers.map(h => JSON.stringify(row[h] ?? '')).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function CodingPage() {
   const navigate = useNavigate();
@@ -40,6 +54,18 @@ export default function CodingPage() {
   const medium = solved.filter((p) => p.difficulty === 'Medium').length;
   const hard   = solved.filter((p) => p.difficulty === 'Hard').length;
 
+  const handleDownloadReport = () => {
+    const rows = problems.map((p, i) => ({
+      '#': i + 1,
+      'Title': p.title,
+      'Difficulty': p.difficulty,
+      'Category': p.topic,
+      'Status': p.solved ? 'Solved' : 'Unsolved',
+      'Acceptance': p.acceptance || '—',
+    }));
+    downloadCSV(rows, 'PlacePro_Coding_Challenges.csv');
+  };
+
   return (
     <StudentLayout>
       {/* Page Header */}
@@ -48,6 +74,15 @@ export default function CodingPage() {
           <div className="page-section-label">DSA PRACTICE</div>
           <h1 className="page-title">Coding Challenges</h1>
           <p className="page-subtitle">Master Data Structures & Algorithms for technical interviews.</p>
+        </div>
+        <div className="page-header-right">
+          <button
+            className="btn-outline"
+            onClick={handleDownloadReport}
+            style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <Download size={14} /> Download Problem List
+          </button>
         </div>
       </div>
 

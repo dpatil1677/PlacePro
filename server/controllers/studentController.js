@@ -1,4 +1,5 @@
 import prisma from '../db.js';
+import { evaluateTestCases, generateInterviewFeedback } from '../utils/codeRunner.js';
 import {
   getAllTests as getBackupTests,
   getTestById as getBackupTestById,
@@ -67,15 +68,15 @@ export async function getDashboard(req, res) {
 // ── Aptitude ──────────────────────────────────────────────
 export async function listAptitudeTests(req, res) {
   try {
-    const tests = await prisma.aptitudeTest.findMany();
+    const tests = await prisma.aptitudeTest.findMany({ orderBy: { createdAt: 'desc' } });
     if (tests.length > 0) {
       const formatted = tests.map((t) => ({
         id: t.id,
         title: t.title,
         category: t.category,
+        difficulty: t.difficulty || 'Medium',
         duration: t.duration,
         questions: t.totalQuestions,
-        questions_data: JSON.parse(t.questionsData || '[]'),
       }));
       return res.json(formatted);
     }
@@ -206,8 +207,14 @@ export async function getAptitudeResults(req, res) {
     if (results.length > 0) {
       return res.json(
         results.map((r) => ({
-          ...r,
-          breakdown: JSON.parse(r.breakdown || '[]'),
+          id: r.id,
+          testId: r.testId,
+          testTitle: r.testTitle || 'Aptitude Test',
+          score: r.score,
+          correct: r.correct,
+          total: r.total,
+          date: r.date,
+          breakdown: (() => { try { return JSON.parse(r.breakdown || '[]'); } catch { return []; } })(),
         }))
       );
     }
@@ -220,18 +227,21 @@ export async function getAptitudeResults(req, res) {
 // ── Coding ────────────────────────────────────────────────
 export async function listCodingProblems(req, res) {
   try {
-    const problems = await prisma.codingProblem.findMany();
+    const [problems, solvedProblems] = await Promise.all([
+      prisma.codingProblem.findMany({ orderBy: { createdAt: 'asc' } }),
+      prisma.solvedProblem.findMany({ where: { userId: req.user.id } }),
+    ]);
     if (problems.length > 0) {
+      const solvedIds = new Set(solvedProblems.map((s) => s.problemId));
       return res.json(
         problems.map((p) => ({
           id: p.id,
           title: p.title,
           difficulty: p.difficulty,
           topic: p.category,
-          description: p.description,
-          examples: JSON.parse(p.examples || '[]'),
-          constraints: JSON.parse(p.constraints || '[]'),
-          starterCode: JSON.parse(p.starterCode || '{}'),
+          acceptance: p.acceptance || '—',
+          companies: (() => { try { return JSON.parse(p.companies || '[]'); } catch { return []; } })(),
+          solved: solvedIds.has(p.id),
         }))
       );
     }
@@ -243,9 +253,10 @@ export async function listCodingProblems(req, res) {
 
 export async function getCodingProblem(req, res) {
   try {
-    const prob = await prisma.codingProblem.findUnique({
-      where: { id: req.params.id },
-    });
+    const [prob, solved] = await Promise.all([
+      prisma.codingProblem.findUnique({ where: { id: req.params.id } }),
+      prisma.solvedProblem.findUnique({ where: { userId_problemId: { userId: req.user.id, problemId: req.params.id } } }),
+    ]);
     if (prob) {
       return res.json({
         id: prob.id,
@@ -253,9 +264,13 @@ export async function getCodingProblem(req, res) {
         difficulty: prob.difficulty,
         topic: prob.category,
         description: prob.description,
-        examples: JSON.parse(prob.examples || '[]'),
-        constraints: JSON.parse(prob.constraints || '[]'),
-        starterCode: JSON.parse(prob.starterCode || '{}'),
+        examples: (() => { try { return JSON.parse(prob.examples || '[]'); } catch { return []; } })(),
+        constraints: (() => { try { return JSON.parse(prob.constraints || '[]'); } catch { return []; } })(),
+        starterCode: (() => { try { return JSON.parse(prob.starterCode || '{}'); } catch { return {}; } })(),
+        testCases: (() => { try { return JSON.parse(prob.testCases || '[]'); } catch { return []; } })(),
+        companies: (() => { try { return JSON.parse(prob.companies || '[]'); } catch { return []; } })(),
+        acceptance: prob.acceptance || '—',
+        solved: !!solved,
       });
     }
   } catch (e) {
@@ -266,31 +281,93 @@ export async function getCodingProblem(req, res) {
   res.json(fallback);
 }
 
-export function runCode(req, res) {
-  setTimeout(() => {
-    res.json({
-      status: 'success',
-      output: '// Output: Tests passed successfully.\n// PlacePro Database & Execution Engine connected.',
-      runtime: '4 ms',
+export async function runCode(req, res) {
+  const { id } = req.params;
+  const { code, language } = req.body;
+  if (!code) return res.status(400).json({ message: 'No code provided.' });
+
+  let testCases = [];
+  try {
+    const prob = await prisma.codingProblem.findUnique({ where: { id } });
+    if (prob?.testCases) {
+      testCases = JSON.parse(prob.testCases || '[]').slice(0, 2); // run only first 2 for speed
+    }
+  } catch (e) { /* fallback: empty test cases */ }
+
+  const startTime = Date.now();
+  const evalResult = evaluateTestCases(code, language || 'javascript', testCases);
+  const runtime = `${Date.now() - startTime} ms`;
+
+  if (testCases.length > 0) {
+    return res.json({
+      status: evalResult.allPassed ? 'success' : 'wrong_answer',
+      output: evalResult.results.map((r, i) =>
+        `Test Case ${i + 1}: ${r.passed ? '✅ Passed' : '❌ Failed'}\nInput: ${r.input}\nExpected: ${r.expected}\nGot: ${r.actual}`
+      ).join('\n\n'),
+      runtime,
       memory: '41.2 MB',
+      testResults: evalResult.results,
+      passed: evalResult.passed,
+      total: evalResult.total,
     });
-  }, 600);
+  }
+
+  // No test cases: just execute and return output
+  const simResult = evaluateTestCases(code, language || 'javascript', []);
+  res.json({
+    status: simResult.allPassed ? 'success' : 'error',
+    output: simResult.sampleOutput || '// Code executed. Add test cases for proper evaluation.',
+    runtime,
+    memory: '41.2 MB',
+  });
 }
 
 export async function submitCode(req, res) {
-  const prob = getBackupProblemById(req.params.id);
-  if (!prob) return res.status(404).json({ message: 'Problem not found' });
+  const { id } = req.params;
+  const { code, language } = req.body;
+  if (!code) return res.status(400).json({ message: 'No code provided.' });
 
-  const { language } = req.body;
-  const accepted = Math.random() > 0.3;
+  let probTitle = 'Problem';
+  let testCases = [];
+  let probFromDB = null;
+
+  try {
+    probFromDB = await prisma.codingProblem.findUnique({ where: { id } });
+    if (probFromDB) {
+      probTitle = probFromDB.title;
+      testCases = JSON.parse(probFromDB.testCases || '[]');
+    }
+  } catch (e) { /* fallback */ }
+
+  // Fallback to in-memory backup if not in DB
+  if (!probFromDB) {
+    const backupProb = getBackupProblemById(id);
+    if (!backupProb) return res.status(404).json({ message: 'Problem not found' });
+    probTitle = backupProb.title;
+    testCases = backupProb.testCases || [];
+  }
+
+  const startTime = Date.now();
+  const evalResult = evaluateTestCases(code, language || 'javascript', testCases);
+  const runtime = `${Date.now() - startTime} ms`;
+  const memory = `${(Math.random() * 5 + 40).toFixed(1)} MB`;
+
+  const accepted = testCases.length === 0
+    ? evalResult.allPassed // if no test cases, trust the code ran without error
+    : evalResult.allPassed;
+
+  const status = accepted ? 'Accepted' : 'Wrong Answer';
 
   const sub = {
-    problemId: prob.id,
-    problemTitle: prob.title,
+    problemId: id,
+    problemTitle: probTitle,
     language: language || 'javascript',
-    status: accepted ? 'Accepted' : 'Wrong Answer',
-    runtime: accepted ? `${Math.floor(Math.random() * 50 + 4)} ms` : null,
-    memory: accepted ? `${(Math.random() * 5 + 40).toFixed(1)} MB` : null,
+    status,
+    runtime: accepted ? runtime : null,
+    memory: accepted ? memory : null,
+    testResults: evalResult.results,
+    passed: evalResult.passed,
+    total: evalResult.total,
     submittedAt: new Date().toISOString(),
   };
 
@@ -298,8 +375,8 @@ export async function submitCode(req, res) {
     await prisma.codingSubmission.create({
       data: {
         userId: req.user.id,
-        problemId: prob.id,
-        problemTitle: prob.title,
+        problemId: id,
+        problemTitle: probTitle,
         language: sub.language,
         status: sub.status,
         runtime: sub.runtime,
@@ -309,21 +386,15 @@ export async function submitCode(req, res) {
 
     if (accepted) {
       await prisma.solvedProblem.upsert({
-        where: {
-          userId_problemId: {
-            userId: req.user.id,
-            problemId: prob.id,
-          },
-        },
+        where: { userId_problemId: { userId: req.user.id, problemId: id } },
         update: { solvedAt: new Date() },
-        create: {
-          userId: req.user.id,
-          problemId: prob.id,
-        },
+        create: { userId: req.user.id, problemId: id },
       });
 
+      const totalProblems = await prisma.codingProblem.count();
       const solvedCount = await prisma.solvedProblem.count({ where: { userId: req.user.id } });
-      const newProgress = Math.min(100, Math.round((solvedCount / 50) * 100));
+      const denominator = Math.max(totalProblems, 10);
+      const newProgress = Math.min(100, Math.round((solvedCount / denominator) * 100));
 
       const prevProg = await prisma.progress.findUnique({ where: { userId: req.user.id } });
       await prisma.progress.upsert({
@@ -337,20 +408,11 @@ export async function submitCode(req, res) {
               (prevProg?.interviewProgress || 0) * 0.2
           ),
         },
-        create: {
-          userId: req.user.id,
-          codingProgress: newProgress,
-          readinessScore: Math.round(newProgress * 0.3),
-        },
+        create: { userId: req.user.id, codingProgress: newProgress, readinessScore: Math.round(newProgress * 0.3) },
       });
     }
   } catch (e) {
     console.error('submitCode DB error:', e);
-  }
-
-  saveBackupSubmission(req.user.id, sub);
-  if (accepted) {
-    markBackupSolved(req.user.id, prob.id);
   }
 
   res.json(sub);
@@ -403,15 +465,41 @@ export async function getInterviewQuestions(req, res) {
 }
 
 export async function submitInterview(req, res) {
-  const { topicId, topicTitle, answers, score, feedback } = req.body;
+  const { topicId, topicTitle, answers, category } = req.body;
+  if (!answers || !Array.isArray(answers)) {
+    return res.status(400).json({ message: 'Answers array required.' });
+  }
+
+  // Generate real AI-style feedback for each answer
+  const scoredAnswers = answers.map((a) => {
+    const fb = generateInterviewFeedback(a.question, a.answer || '', category || 'Technical');
+    return { ...a, feedback: fb };
+  });
+
+  const totalScore = scoredAnswers.reduce((sum, a) => sum + (a.feedback?.score || 0), 0);
+  const totalMax = scoredAnswers.reduce((sum, a) => sum + (a.feedback?.maxScore || 14), 0);
+  const overallPct = totalMax > 0 ? Math.round((totalScore / totalMax) * 100) : 0;
+
+  const feedbackSummary = {
+    overallScore: overallPct,
+    totalScore,
+    totalMax,
+    questionsAnswered: answers.length,
+    strength: overallPct >= 75 ? 'Strong performance overall. Keep it up!'
+      : overallPct >= 50 ? 'Good effort. Work on structuring your answers better.'
+      : 'Needs improvement. Practice the STAR method and add more examples.',
+    topTips: [
+      ...new Set(scoredAnswers.flatMap((a) => a.feedback?.tips || []))
+    ].slice(0, 3),
+  };
 
   const session = {
     id: 'ses_' + Date.now(),
     topicId,
     topicTitle,
-    answers,
-    score: score || 0,
-    feedback: feedback || '',
+    answers: scoredAnswers,
+    score: overallPct,
+    feedback: feedbackSummary,
     completedAt: new Date().toISOString(),
   };
 
@@ -421,15 +509,14 @@ export async function submitInterview(req, res) {
         userId: req.user.id,
         topicId: topicId || 'unknown',
         topicTitle: topicTitle || 'Interview Practice',
-        answers: JSON.stringify(answers || []),
-        score: score || 0,
-        feedback: feedback || '',
+        answers: JSON.stringify(scoredAnswers),
+        score: overallPct,
+        feedback: JSON.stringify(feedbackSummary),
       },
     });
 
-    // Update interview progress
     const sessionCount = await prisma.interviewSession.count({ where: { userId: req.user.id } });
-    const newProgress = Math.min(100, sessionCount * 12);
+    const newProgress = Math.min(100, Math.max(overallPct, Math.round(sessionCount * 10)));
     const prevProg = await prisma.progress.findUnique({ where: { userId: req.user.id } });
     await prisma.progress.upsert({
       where: { userId: req.user.id },
@@ -467,6 +554,7 @@ export async function listInterviewSessions(req, res) {
         sessions.map((s) => ({
           ...s,
           answers: JSON.parse(s.answers || '[]'),
+          feedback: (() => { try { return JSON.parse(s.feedback || '{}'); } catch { return { overallScore: s.score }; } })(),
         }))
       );
     }
@@ -624,10 +712,43 @@ export async function exportResume(req, res) {
   res.json({ resume, exportReady: true });
 }
 
+// ── Auto-close expired drives helper ─────────────────────
+export async function closeExpiredDrives() {
+  try {
+    const drives = await prisma.drive.findMany({
+      where: {
+        status: { in: ['Upcoming', 'Ongoing'] },
+        deadline: { not: null },
+      },
+    });
+
+    const now = new Date();
+    for (const d of drives) {
+      if (d.deadline && d.deadline.trim()) {
+        const deadlineDate = new Date(d.deadline);
+        if (!isNaN(deadlineDate.getTime()) && deadlineDate < now) {
+          await prisma.drive.update({
+            where: { id: d.id },
+            data: { status: 'Closed' },
+          });
+        }
+      }
+    }
+  } catch (e) {
+    console.error('closeExpiredDrives error:', e);
+  }
+}
+
 // ── Companies ─────────────────────────────────────────────
 export async function listCompanies(req, res) {
   try {
-    const companies = await prisma.company.findMany();
+    await closeExpiredDrives();
+    const companies = await prisma.company.findMany({
+      include: {
+        drives: true,
+      },
+      orderBy: { name: 'asc' },
+    });
     if (companies.length > 0) {
       return res.json(
         companies.map((c) => ({
@@ -638,10 +759,13 @@ export async function listCompanies(req, res) {
           difficulty: c.type === 'Product' ? 'Hard' : 'Easy',
           package: c.package,
           industry: c.location,
+          location: c.location,
           description: c.about,
-          hiringProcess: JSON.parse(c.hiringProcess || '[]'),
-          interviewQuestions: JSON.parse(c.rounds || '[]'),
-          preparationTips: JSON.parse(c.requirements || '[]'),
+          hiringProcess: (() => { try { return JSON.parse(c.hiringProcess || '[]'); } catch { return []; } })(),
+          interviewQuestions: (() => { try { return JSON.parse(c.rounds || '[]'); } catch { return []; } })(),
+          preparationTips: (() => { try { return JSON.parse(c.requirements || '[]'); } catch { return []; } })(),
+          activeDrivesCount: (c.drives || []).filter(d => d.status !== 'Completed' && d.status !== 'Closed').length,
+          totalDrivesCount: (c.drives || []).length,
         }))
       );
     }
@@ -653,22 +777,66 @@ export async function listCompanies(req, res) {
 
 export async function getCompany(req, res) {
   try {
-    const company = await prisma.company.findUnique({
-      where: { id: req.params.id },
+    await closeExpiredDrives();
+    const { id } = req.params;
+    let company = await prisma.company.findUnique({
+      where: { id },
+      include: {
+        drives: {
+          orderBy: { createdAt: 'desc' },
+        },
+      },
     });
+
+    // Fallback search by company name if ID didn't match directly
+    if (!company) {
+      company = await prisma.company.findFirst({
+        where: { name: { equals: id } },
+        include: {
+          drives: {
+            orderBy: { createdAt: 'desc' },
+          },
+        },
+      });
+    }
+
     if (company) {
+      const myApps = await prisma.application.findMany({
+        where: { userId: req.user.id },
+        select: { driveId: true, status: true },
+      });
+      const appMap = Object.fromEntries(myApps.map(a => [a.driveId, a.status]));
+
       return res.json({
         id: company.id,
         name: company.name,
         logo: company.logo,
         category: company.role,
+        role: company.role,
         difficulty: company.type === 'Product' ? 'Hard' : 'Easy',
         package: company.package,
         industry: company.location,
+        location: company.location,
         description: company.about,
-        hiringProcess: JSON.parse(company.hiringProcess || '[]'),
-        interviewQuestions: JSON.parse(company.rounds || '[]'),
-        preparationTips: JSON.parse(company.requirements || '[]'),
+        about: company.about,
+        website: company.website,
+        hiringProcess: (() => { try { return JSON.parse(company.hiringProcess || '[]'); } catch { return []; } })(),
+        interviewQuestions: (() => { try { return JSON.parse(company.rounds || '[]'); } catch { return []; } })(),
+        preparationTips: (() => { try { return JSON.parse(company.requirements || '[]'); } catch { return []; } })(),
+        commonTopics: ['Data Structures', 'Algorithms', 'System Design', 'DBMS', 'OOP'],
+        drives: (company.drives || []).map(d => ({
+          id: d.id,
+          title: d.title,
+          status: d.status,
+          date: d.date,
+          deadline: d.deadline,
+          eligibility: d.eligibility,
+          package: d.package,
+          location: d.location,
+          registered: d.registered,
+          applied: !!appMap[d.id],
+          applicationStatus: appMap[d.id] || null,
+        })),
       });
     }
   } catch (e) {
@@ -714,4 +882,198 @@ export async function getAchievements(req, res) {
     console.error('getAchievements error:', e);
   }
   res.json(getBackupAchievements(req.user.id));
+}
+
+// ── Student Drives & Applications ─────────────────────────
+export async function listDrivesForStudent(req, res) {
+  try {
+    await closeExpiredDrives();
+    const drives = await prisma.drive.findMany({
+      include: { companyRel: true },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (drives.length > 0) {
+      const myApps = await prisma.application.findMany({
+        where: { userId: req.user.id },
+        select: { driveId: true, status: true },
+      });
+      const appMap = {};
+      myApps.forEach(a => { appMap[a.driveId] = a.status; });
+
+      return res.json(drives.map(d => ({
+        id: d.id,
+        companyId: d.companyId,
+        company: d.companyRel?.name || d.company,
+        abbr: d.companyRel?.logo || d.abbr,
+        title: d.title,
+        status: d.status,
+        date: d.date,
+        deadline: d.deadline,
+        eligibility: d.eligibility,
+        package: d.package,
+        location: d.location,
+        description: d.description,
+        registered: d.registered,
+        applied: !!appMap[d.id],
+        applicationStatus: appMap[d.id] || null,
+        rounds: d.rounds ? JSON.parse(d.rounds) : [],
+      })));
+    }
+  } catch (e) {
+    console.error('listDrivesForStudent error:', e);
+  }
+  res.json([]);
+}
+
+export async function getDrive(req, res) {
+  try {
+    await closeExpiredDrives();
+    const { id } = req.params;
+    const drive = await prisma.drive.findUnique({
+      where: { id },
+      include: {
+        companyRel: true,
+      },
+    });
+
+    if (!drive) {
+      return res.status(404).json({ message: 'Placement drive not found' });
+    }
+
+    const app = await prisma.application.findUnique({
+      where: { userId_driveId: { userId: req.user.id, driveId: id } },
+    });
+
+    const student = await prisma.student.findUnique({
+      where: { userId: req.user.id },
+    });
+
+    res.json({
+      id: drive.id,
+      companyId: drive.companyId,
+      company: drive.companyRel?.name || drive.company,
+      companyLogo: drive.companyRel?.logo || drive.abbr || drive.company?.slice(0, 2).toUpperCase(),
+      companyAbout: drive.companyRel?.about || drive.description,
+      companyLocation: drive.companyRel?.location || drive.location,
+      companyRole: drive.companyRel?.role || drive.title,
+      title: drive.title,
+      status: drive.status,
+      date: drive.date,
+      deadline: drive.deadline,
+      eligibility: drive.eligibility,
+      package: drive.package,
+      location: drive.location,
+      description: drive.description,
+      rounds: (() => { try { return JSON.parse(drive.rounds || '[]'); } catch { return []; } })(),
+      registered: drive.registered,
+      applied: !!app,
+      applicationStatus: app?.status || null,
+      appliedAt: app?.appliedAt || null,
+      studentReadiness: student?.readiness || 0,
+      studentBranch: student?.branch || '',
+    });
+  } catch (e) {
+    console.error('getDrive error:', e);
+    res.status(500).json({ message: 'Failed to fetch drive details' });
+  }
+}
+
+export async function applyToDrive(req, res) {
+  const { driveId } = req.body;
+  if (!driveId) return res.status(400).json({ message: 'Drive ID is required.' });
+
+  try {
+    await closeExpiredDrives();
+    const drive = await prisma.drive.findUnique({
+      where: { id: driveId },
+      include: { companyRel: true },
+    });
+    if (!drive) return res.status(404).json({ message: 'Drive not found.' });
+
+    if (drive.status === 'Completed' || drive.status === 'Closed') {
+      return res.status(400).json({ message: 'Applications for this drive are closed.' });
+    }
+
+    if (drive.deadline && drive.deadline.trim()) {
+      const deadlineDate = new Date(drive.deadline);
+      if (!isNaN(deadlineDate.getTime()) && deadlineDate < new Date()) {
+        await prisma.drive.update({ where: { id: driveId }, data: { status: 'Closed' } });
+        return res.status(400).json({ message: 'The deadline for this placement drive has passed.' });
+      }
+    }
+
+    const existing = await prisma.application.findUnique({
+      where: { userId_driveId: { userId: req.user.id, driveId } },
+    });
+    if (existing) {
+      return res.status(409).json({ message: 'You have already applied to this drive.' });
+    }
+
+    const application = await prisma.application.create({
+      data: { userId: req.user.id, driveId, status: 'Applied' },
+    });
+
+    // Increment registered count on drive
+    await prisma.drive.update({
+      where: { id: driveId },
+      data: { registered: { increment: 1 } },
+    });
+
+    res.status(201).json({
+      application,
+      message: `Successfully applied to ${drive.companyRel?.name || drive.company}!`,
+    });
+  } catch (e) {
+    console.error('applyToDrive error:', e);
+    res.status(500).json({ message: 'Failed to apply for drive.' });
+  }
+}
+
+export async function getMyApplications(req, res) {
+  try {
+    const applications = await prisma.application.findMany({
+      where: { userId: req.user.id },
+      include: {
+        drive: {
+          select: {
+            id: true, company: true, title: true, date: true,
+            deadline: true, package: true, location: true, status: true,
+          },
+        },
+      },
+      orderBy: { appliedAt: 'desc' },
+    });
+    res.json({ applications });
+  } catch (e) {
+    console.error('getMyApplications error:', e);
+    res.json({ applications: [] });
+  }
+}
+
+// ── Student Notifications ─────────────────────────────────
+export async function getStudentNotifications(req, res) {
+  try {
+    const student = await prisma.student.findUnique({
+      where: { userId: req.user.id },
+      select: { branch: true, gradYear: true },
+    });
+    const branch = student?.branch || '';
+    const year = student?.gradYear || '';
+
+    const notifications = await prisma.notification.findMany({
+      where: {
+        OR: [
+          { target: 'all' },
+          { target: { contains: branch } },
+          { target: { contains: year } },
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
+    res.json({ notifications });
+  } catch (e) {
+    console.error('getStudentNotifications error:', e);
+    res.json({ notifications: [] });
+  }
 }

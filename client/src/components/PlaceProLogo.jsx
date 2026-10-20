@@ -1,13 +1,53 @@
-// PlacePro Logo Component - Blue Theme
-export default function PlaceProLogo({ size = 'md', dark = false, color = '#0062ff' }) {
+import { GraduationCap } from 'lucide-react';
+
+// PlacePro Logo Component - Supports default blue theme and premium dark lamp theme
+export default function PlaceProLogo({ size = 'md', dark = false, color = '#0062ff', variant = 'default' }) {
   const sizes = {
-    sm: { box: 24, text: 15 },
-    md: { box: 30, text: 18 },
-    lg: { box: 38, text: 22 },
+    sm: { box: 24, text: 15, icon: 15 },
+    md: { box: 30, text: 18, icon: 18 },
+    lg: { box: 38, text: 22, icon: 22 },
   };
 
   const s = sizes[size] || sizes.md;
 
+  // Premium dark lamp theme logo for Login & Registration pages
+  if (variant === 'lamp') {
+    return (
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '9px', userSelect: 'none' }}>
+        <div
+          style={{
+            width: s.box,
+            height: s.box,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '7px',
+            background: 'rgba(255, 190, 70, 0.08)',
+            border: '1px solid rgba(255, 215, 0, 0.22)',
+            color: '#ffd54f',
+            flexShrink: 0,
+          }}
+        >
+          <GraduationCap size={s.icon} strokeWidth={2.2} />
+        </div>
+        <span
+          style={{
+            fontWeight: 800,
+            fontSize: s.text,
+            letterSpacing: '-0.3px',
+            fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+            display: 'inline-flex',
+            alignItems: 'center',
+          }}
+        >
+          <span style={{ color: '#ffffff' }}>Place</span>
+          <span style={{ color: '#ffbe3b', marginLeft: '1px' }}>Pro</span>
+        </span>
+      </div>
+    );
+  }
+
+  // Standard corporate logo with blue icon box
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
       <div

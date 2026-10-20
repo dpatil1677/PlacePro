@@ -12,6 +12,7 @@
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "@prisma/client": "^7.10.0",
+    "framer-motion": "^14.4.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
     "lucide-react": "^1.51.0",

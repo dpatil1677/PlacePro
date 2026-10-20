@@ -243,3 +243,368 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================
+   LAMP TOGGLE LOGIN PAGE (50/50 Split Screen)
+   ============================================ */
+.lamp-login-page {
+  display: flex;
+  height: 100vh;
+  max-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: #060709;
+  position: relative;
+  font-family: inherit;
+}
+
+/* --- Left Side (50%) Dark Lamp Section --- */
+.lamp-left-panel {
+  width: 50%;
+  height: 100vh;
+  max-height: 100vh;
+  position: relative;
+  background: #060709;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 32px;
+  overflow: hidden;
+  z-index: 2;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  box-sizing: border-box;
+}
+
+.lamp-left-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.lamp-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 11px;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.lamp-status-indicator.on {
+  background: rgba(255, 190, 70, 0.15);
+  color: #ffbe3b;
+  border: 1px solid rgba(255, 190, 70, 0.3);
+  box-shadow: 0 0 10px rgba(255, 190, 70, 0.15);
+}
+
+.lamp-status-indicator.off {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lamp-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.lamp-status-indicator.on .lamp-status-dot {
+  background: #ffbe3b;
+  box-shadow: 0 0 6px #ffbe3b;
+}
+
+.lamp-status-indicator.off .lamp-status-dot {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Central Stage - Static Position Invariant to ON/OFF state */
+.lamp-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  padding-top: 50px;
+  overflow: hidden;
+}
+
+.lamp-assembly {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Ceiling Mount & Suspension Wire */
+.lamp-ceiling-mount {
+  width: 22px;
+  height: 4px;
+  background: #aa820a;
+  border-radius: 2px 2px 0 0;
+  z-index: 10;
+}
+
+.lamp-suspension-wire {
+  width: 2px;
+  height: 30px;
+  background: #2a2d36;
+  z-index: 9;
+}
+
+/* Hanging Lamp Fixture & Pull String */
+.lamp-fixture-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 8;
+}
+
+.lamp-shade {
+  width: 130px;
+  height: 60px;
+  position: relative;
+  clip-path: polygon(18% 0%, 82% 0%, 100% 100%, 0% 100%);
+  transition: background 0.3s ease, border-color 0.3s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.lamp-shade.off {
+  background: linear-gradient(135deg, #181a1f 0%, #252830 50%, #15171b 100%);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.08), inset 0 -3px 8px rgba(0, 0, 0, 0.7);
+  border-bottom: 2px solid #2d313a;
+}
+
+.lamp-shade.on {
+  background: linear-gradient(180deg, #fff3cf 0%, #ffdf85 30%, #ffc44d 75%, #ffa726 100%);
+  border-bottom: 2px solid #ffd54f;
+}
+
+.lamp-shade-rim {
+  width: 132px;
+  height: 3px;
+  background: linear-gradient(to right, #665014, #ffd54f, #665014);
+  border-radius: 2px;
+  z-index: 9;
+}
+
+/* Subtle Inner Bulb — ONLY subtle glow directly around bulb when ON, solid black background elsewhere */
+.lamp-inner-bulb {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.lamp-inner-bulb.off {
+  background: #1d2026;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lamp-inner-bulb.on {
+  background: #ffffff;
+  border: 1px solid #ffe699;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.8), 0 0 24px rgba(255, 180, 50, 0.45);
+}
+
+/* Welcome Text within Left Side - 20% Reduced Size */
+.lamp-welcome-wrapper {
+  margin-top: 24px;
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  z-index: 10;
+}
+
+.lamp-welcome-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.lamp-welcome-content .auth-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: #ffbe3b;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.lamp-welcome-content .auth-left-heading {
+  font-size: 38px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  margin-bottom: 10px;
+  letter-spacing: -0.015em;
+}
+
+.lamp-welcome-content .auth-left-desc {
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.48;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* Footer in Left Panel */
+.lamp-left-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 10;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  flex-shrink: 0;
+}
+
+.lamp-footer-text {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.35);
+  line-height: 1.4;
+}
+
+/* --- Right Side (50%) Form Section --- */
+.lamp-right-panel {
+  width: 50%;
+  height: 100vh;
+  max-height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 32px;
+  transition: background 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+.lamp-right-panel.lit {
+  background: #ffffff;
+}
+
+.lamp-right-panel.dark {
+  background: #060709;
+}
+
+.lamp-right-panel .auth-form-container {
+  width: 100%;
+  max-width: 350px;
+  margin: auto;
+}
+
+.lamp-right-panel .auth-form-heading {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin-bottom: 4px;
+}
+
+.lamp-right-panel .auth-form-subheading {
+  font-size: 12.5px;
+  color: var(--color-text-secondary);
+  margin-bottom: 20px;
+}
+
+.lamp-right-panel .form-group {
+  margin-bottom: 14px;
+}
+
+.lamp-right-panel .form-label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.lamp-right-panel .form-input {
+  padding: 9px 12px;
+  font-size: 13px;
+}
+
+.lamp-right-panel .btn-primary {
+  padding: 10px 16px;
+  font-size: 13.5px;
+  margin-top: 6px;
+}
+
+.lamp-right-panel .auth-footer-text {
+  font-size: 12px;
+  margin-top: 14px;
+}
+
+.lamp-right-panel .demo-card {
+  margin-top: 16px;
+  padding: 11px 13px;
+}
+
+.lamp-right-panel .demo-card-title {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 3px;
+}
+
+.lamp-right-panel .demo-card-text {
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* Responsive Styles for Lamp Login */
+@media (max-width: 900px) {
+  .lamp-login-page {
+    flex-direction: column;
+    height: auto;
+    max-height: none;
+    overflow-y: auto;
+  }
+
+  .lamp-left-panel {
+    width: 100%;
+    height: auto;
+    min-height: 420px;
+    padding: 24px;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .lamp-right-panel {
+    width: 100%;
+    height: auto;
+    min-height: 480px;
+    padding: 32px 20px;
+  }
+
+  .lamp-welcome-content .auth-left-heading {
+    font-size: 26px;
+  }
+
+  .lamp-welcome-content .auth-left-desc {
+    font-size: 13px;
+  }
+}
+

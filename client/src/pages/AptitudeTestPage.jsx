@@ -73,20 +73,35 @@ export default function AptitudeTestPage() {
   if (error) return <StudentLayout><div className="sp-empty"><div className="sp-empty-title">{error}</div></div></StudentLayout>;
 
   if (submitted && result) {
+    const scoreColor = result.score >= 70 ? '#10b981' : result.score >= 40 ? '#f59e0b' : '#ef4444';
+    const scoreLabel = result.score >= 70 ? '🎉 Great job!' : result.score >= 40 ? '👍 Good effort!' : '💪 Keep practicing!';
     return (
       <StudentLayout>
-        <div className="test-page">
-          <div className="test-result-card">
-            <div className="test-result-score-circle">
-              <div className="test-result-pct">{result.score}%</div>
+        <div className="test-page" style={{ maxWidth: 740 }}>
+          {/* Score summary */}
+          <div className="test-result-card" style={{ background: `linear-gradient(135deg, ${scoreColor}15 0%, #fff 100%)`, border: `1.5px solid ${scoreColor}30`, marginBottom: 20 }}>
+            <div className="test-result-score-circle" style={{ borderColor: scoreColor }}>
+              <div className="test-result-pct" style={{ color: scoreColor }}>{result.score}%</div>
               <div className="test-result-label">SCORE</div>
             </div>
-            <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#0B1224', marginBottom: '6px' }}>
-              {result.score >= 70 ? '🎉 Great job!' : result.score >= 40 ? '👍 Good effort!' : '💪 Keep practicing!'}
-            </h2>
-            <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '24px' }}>
-              You got <strong>{result.correct}</strong> out of <strong>{result.total}</strong> questions correct.
+            <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#0B1224', marginBottom: '6px' }}>{scoreLabel}</h2>
+            <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '8px' }}>
+              You got <strong style={{ color: '#10b981' }}>{result.correct}</strong> out of <strong>{result.total}</strong> questions correct.
             </p>
+            <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 20 }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color: '#10b981' }}>{result.correct}</div>
+                <div style={{ fontSize: 11, color: '#9ca3af' }}>CORRECT</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color: '#ef4444' }}>{result.total - result.correct}</div>
+                <div style={{ fontSize: 11, color: '#9ca3af' }}>WRONG</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color: '#9ca3af' }}>{result.total - Object.keys(answers).length}</div>
+                <div style={{ fontSize: 11, color: '#9ca3af' }}>SKIPPED</div>
+              </div>
+            </div>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
               <button className="btn-primary" onClick={() => navigate('/student/aptitude')}>
                 Back to Aptitude
@@ -96,10 +111,69 @@ export default function AptitudeTestPage() {
               </button>
             </div>
           </div>
+
+          {/* Question-by-question breakdown */}
+          {(result.breakdown || []).length > 0 && (
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 15, color: '#0B1224', marginBottom: 12 }}>
+                Question Breakdown
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {result.breakdown.map((b, idx) => {
+                  const question = test.questions.find(q => q.id === b.id);
+                  if (!question) return null;
+                  return (
+                    <div key={b.id} style={{
+                      background: '#fff', borderRadius: 10, padding: '14px 16px',
+                      border: `1.5px solid ${b.isCorrect ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.2)'}`,
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#9ca3af' }}>Q{idx + 1}</span>
+                        <span style={{
+                          fontSize: 12, fontWeight: 700, padding: '2px 10px', borderRadius: 20,
+                          background: b.isCorrect ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.1)',
+                          color: b.isCorrect ? '#10b981' : '#ef4444',
+                        }}>
+                          {b.isCorrect ? '✓ Correct' : b.selected !== undefined ? '✗ Wrong' : '— Skipped'}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#0B1224', marginBottom: 10 }}>
+                        {question.q}
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                        {(question.options || []).map((opt, i) => {
+                          const isCorrect = i === b.correctAnswer;
+                          const isSelected = i === b.selected;
+                          return (
+                            <span key={i} style={{
+                              fontSize: 12, padding: '4px 12px', borderRadius: 20,
+                              background: isCorrect ? 'rgba(16,185,129,0.1)' : isSelected && !isCorrect ? 'rgba(239,68,68,0.08)' : '#f9fafb',
+                              border: `1px solid ${isCorrect ? '#10b981' : isSelected && !isCorrect ? '#ef4444' : '#e5e7eb'}`,
+                              color: isCorrect ? '#10b981' : isSelected && !isCorrect ? '#ef4444' : '#6b7280',
+                              fontWeight: isCorrect || isSelected ? 700 : 400,
+                            }}>
+                              {String.fromCharCode(65 + i)}. {opt}
+                              {isCorrect ? ' ✓' : ''}{isSelected && !isCorrect ? ' ✗' : ''}
+                            </span>
+                          );
+                        })}
+                      </div>
+                      {question.explanation && (
+                        <div style={{ marginTop: 10, background: 'rgba(59,130,246,0.05)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#374151' }}>
+                          💡 <strong>Explanation:</strong> {question.explanation}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </StudentLayout>
     );
   }
+
 
   if (!test) return null;
   const q = test.questions[currentQ];
