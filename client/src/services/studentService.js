@@ -1,5 +1,5 @@
 // Student API service — all calls use the Vite proxy (/api → http://localhost:5001)
-const BASE = '/api/student';
+const BASE = `${import.meta.env.VITE_API_URL}/api/student`;
 
 function getAuthHeaders() {
   const token = localStorage.getItem('pp_token');
