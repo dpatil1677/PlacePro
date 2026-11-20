@@ -1,5 +1,5 @@
 // Auth context and service
-const API_URL = '';
+const API_URL = import.meta.env.VITE_API_URL || 'https://placepro-1.onrender.com';
 
 export const authService = {
   async login(email, password) {
