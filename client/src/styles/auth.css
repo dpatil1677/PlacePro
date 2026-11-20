@@ -264,7 +264,7 @@
   height: 100vh;
   max-height: 100vh;
   position: relative;
-  background: linear-gradient(155deg, #0c2461 0%, #1a4aba 55%, #1565c0 100%);
+  background: black;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -342,6 +342,7 @@
   width: 100%;
   padding-top: 50px;
   overflow: hidden;
+  transform: translateY(80px);
 }
 
 .lamp-assembly {
