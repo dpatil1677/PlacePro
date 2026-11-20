@@ -49,7 +49,8 @@ export default function LandingPage() {
   const [announcementVisible, setAnnouncementVisible] = useState(true);
   const navigate = useNavigate();
 
-  const allCompanies = [...companies, ...companies]; // for seamless scroll
+  // Duplicate for seamless scroll loop
+  const allCompanies = [...companies, ...companies];
 
   return (
     <div className="landing-page">
@@ -82,7 +83,7 @@ export default function LandingPage() {
           <li><a href="#features">Features</a></li>
           <li><a href="#companies">Companies</a></li>
           <li><a href="#universities">For Universities</a></li>
-          <li><a href="#docs">Docs</a></li>
+          <li><Link to="/docs">Docs</Link></li>
         </ul>
         <div className="navbar-actions">
           <Link to="/login">
@@ -168,7 +169,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Company Strip */}
+      {/* Company Strip — Animated Ticker */}
       <div className="landing-company-strip" id="companies">
         <div className="landing-company-strip-inner">
           <div className="landing-strip-label">
@@ -304,6 +305,7 @@ export default function LandingPage() {
           <li><a href="#features">Features</a></li>
           <li><a href="#companies">Companies</a></li>
           <li><a href="#universities">Universities</a></li>
+          <li><Link to="/docs">Docs</Link></li>
           <li><a href="#">Privacy</a></li>
           <li><a href="#">Terms</a></li>
         </ul>

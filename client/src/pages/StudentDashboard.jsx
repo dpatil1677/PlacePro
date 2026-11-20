@@ -189,15 +189,20 @@ export default function StudentDashboard() {
             </div>
           </div>
 
-          {/* Company Strip */}
+          {/* Company Strip — Animated Ticker */}
           <div className="company-strip">
             <div className="company-strip-label">
-              COMPANIES<br />HIRING
+              COMPANIES{'\n'}HIRING
             </div>
-            <div className="company-strip-list" onClick={() => navigate('/student/companies')} style={{ cursor: 'pointer' }}>
-              {(companyNames.length > 0 ? companyNames : ['Flipkart', 'Infosys', 'TCS', 'Wipro', 'Accenture', 'Google', 'Microsoft', 'Amazon']).map((c, i) => (
-                <span key={i} className="company-strip-item">{c}</span>
-              ))}
+            <div className="company-strip-scroll">
+              <div className="company-strip-track" onClick={() => navigate('/student/companies')} style={{ cursor: 'pointer' }}>
+                {/* Duplicate for seamless infinite loop */}
+                {[...(companyNames.length > 0 ? companyNames : ['Flipkart', 'Infosys', 'TCS', 'Wipro', 'Accenture', 'Google', 'Microsoft', 'Amazon']),
+                  ...(companyNames.length > 0 ? companyNames : ['Flipkart', 'Infosys', 'TCS', 'Wipro', 'Accenture', 'Google', 'Microsoft', 'Amazon'])
+                ].map((c, i) => (
+                  <span key={i} className="company-strip-item">{c}</span>
+                ))}
+              </div>
             </div>
           </div>
 

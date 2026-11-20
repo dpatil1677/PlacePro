@@ -342,17 +342,17 @@
 .stat-blue { color: #0062ff; }
 
 /* ============================================
-   COMPANY STRIP
+   COMPANY STRIP — ANIMATED TICKER
    ============================================ */
 .company-strip {
   background: #101214;
   border-radius: 10px;
-  padding: 14px 20px;
+  padding: 0;
   margin-bottom: 24px;
   display: flex;
-  align-items: center;
-  gap: 24px;
+  align-items: stretch;
   overflow: hidden;
+  min-height: 52px;
 }
 
 .company-strip-label {
@@ -361,22 +361,29 @@
   letter-spacing: 0.1em;
   color: rgba(255,255,255,0.4);
   text-transform: uppercase;
-  padding-right: 20px;
+  padding: 0 20px;
   border-right: 1px solid rgba(255,255,255,0.12);
   flex-shrink: 0;
   line-height: 1.35;
-}
-
-.company-strip-list {
   display: flex;
   align-items: center;
-  gap: 28px;
-  overflow-x: auto;
-  scrollbar-width: none;
+  white-space: pre-line;
 }
 
-.company-strip-list::-webkit-scrollbar {
-  display: none;
+.company-strip-scroll {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.company-strip-track {
+  display: flex;
+  animation: ticker-scroll 22s linear infinite;
+  width: max-content;
+}
+
+.company-strip-track:hover {
+  animation-play-state: paused;
 }
 
 .company-strip-item {
@@ -385,6 +392,23 @@
   color: rgba(255,255,255,0.75);
   white-space: nowrap;
   flex-shrink: 0;
+  padding: 0 32px;
+  line-height: 52px;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .company-strip-track {
+    animation: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .company-strip-track::-webkit-scrollbar { display: none; }
 }
 
 /* ============================================
@@ -1037,20 +1061,83 @@
 }
 
 /* ============================================
+   MOBILE HEADER BAR (shown only on mobile)
+   ============================================ */
+.mobile-header {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: var(--color-sidebar);
+  z-index: 150;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.mobile-header-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+  flex: 1;
+}
+
+.mobile-header-logo {
+  flex: 1;
+}
+
+/* ============================================
    MOBILE SIDEBAR TOGGLE & OVERLAY
    ============================================ */
 .sidebar-toggle {
-  display: none;
-  position: fixed;
-  top: 14px;
-  left: 14px;
-  z-index: 200;
-  background: var(--color-sidebar);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.1);
   color: #fff;
   border: none;
   border-radius: var(--radius-sm);
-  padding: 8px;
   cursor: pointer;
+  transition: background 0.15s;
+}
+
+.sidebar-toggle:hover {
+  background: rgba(255,255,255,0.18);
+}
+
+/* Hidden by default; shown via .mobile-header on mobile */
+.sidebar-toggle {
+  display: flex;
+}
+
+/* Close button inside sidebar (mobile only) */
+.sidebar-close-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  width: 30px;
+  height: 30px;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.7);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.sidebar-close-btn:hover {
+  background: rgba(255,255,255,0.18);
+  color: #fff;
 }
 
 .sidebar-overlay {
@@ -1059,6 +1146,7 @@
   inset: 0;
   background: rgba(0,0,0,0.5);
   z-index: 90;
+  backdrop-filter: blur(2px);
 }
 
 /* ============================================
@@ -1083,30 +1171,61 @@
 }
 
 @media (max-width: 768px) {
+  /* Show mobile header bar */
+  .mobile-header {
+    display: flex;
+  }
+
+  /* Show close button inside sidebar */
+  .sidebar-close-btn {
+    display: flex;
+  }
+
+  /* Hide the standalone sidebar-toggle (now inside mobile-header) */
+  .mobile-header .sidebar-toggle {
+    display: flex;
+    position: static;
+    top: auto;
+    left: auto;
+    background: rgba(255,255,255,0.1);
+  }
+
   .sidebar {
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 120;
   }
 
   .sidebar.open {
     transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.3);
+  }
+
+  /* Sidebar logo row: logo left, close btn right */
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 16px 14px;
   }
 
   .sidebar-overlay {
     display: block;
   }
 
-  .sidebar-toggle {
-    display: flex;
-  }
-
   .dashboard-main {
     margin-left: 0;
   }
 
+  .dashboard-header {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  /* Push content below the fixed mobile header */
   .dashboard-content {
     padding: 16px;
-    padding-top: 70px;
+    padding-top: 72px;
   }
 
   .stat-cards-grid,

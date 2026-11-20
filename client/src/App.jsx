@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import DocsPage from './pages/DocsPage';
 import StudentDashboard from './pages/StudentDashboard';
 import ResumePage from './pages/ResumePage';
 import AptitudePage from './pages/AptitudePage';
@@ -49,6 +50,7 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/docs" element={<DocsPage />} />
 
         {/* Student routes */}
         <Route path="/student/dashboard" element={<StudentRoute><StudentDashboard /></StudentRoute>} />

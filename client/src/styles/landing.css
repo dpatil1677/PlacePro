@@ -424,7 +424,26 @@
 
 .landing-strip-track {
   display: flex;
-  animation: scroll-left 25s linear infinite;
+  animation: landing-scroll-left 28s linear infinite;
+  width: max-content;
+}
+
+.landing-strip-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes landing-scroll-left {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-strip-track {
+    animation: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .landing-strip-track::-webkit-scrollbar { display: none; }
 }
 
 .landing-strip-item {
