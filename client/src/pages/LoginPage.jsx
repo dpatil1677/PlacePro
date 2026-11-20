@@ -218,17 +218,7 @@ export default function LoginPage() {
                 Don't have an account?{' '}
                 <Link to="/register" className="auth-footer-link">Create one</Link>
               </p>
-
-              {/* Demo Credentials Card */}
-              <div className="demo-card">
-                <div className="demo-card-title">DEMO CREDENTIALS</div>
-                <div className="demo-card-text">
-                  Student: student@placepro.com / Demo@1234<br />
-                  Admin: admin@placepro.com / Demo@1234
-                </div>
-              </div>
-            </motion.div>
-          )}
+              
         </AnimatePresence>
       </div>
 
