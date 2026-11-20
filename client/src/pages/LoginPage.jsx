@@ -218,7 +218,7 @@ export default function LoginPage() {
                 Don't have an account?{' '}
                 <Link to="/register" className="auth-footer-link">Create one</Link>
               </p>
-              
+              </motion.div>
         </AnimatePresence>
       </div>
 
