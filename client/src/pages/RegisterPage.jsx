@@ -76,11 +76,12 @@ export default function RegisterPage() {
     <div className="lamp-login-page">
       {/* =========================================================================
           LEFT SIDE (50%): Solid black background with static lamp & welcome text
+          Hidden on mobile via CSS
           ========================================================================= */}
       <div className="lamp-left-panel">
         {/* Top Header: PlacePro Logo & Lamp Status */}
         <div className="lamp-left-header">
-          <PlaceProLogo size="md" variant="lamp" />
+          <PlaceProLogo size="md" color="#60a5fa" dark />
           <div className={`lamp-status-indicator ${isLampOn ? 'on' : 'off'}`}>
             <span className="lamp-status-dot" />
             <span>{isLampOn ? 'LIGHT ON' : 'LIGHT OFF'}</span>
@@ -154,8 +155,9 @@ export default function RegisterPage() {
 
       {/* =========================================================================
           RIGHT SIDE (50%): Empty when Lamp is OFF, Smoothly reveals Form when ON
+          On mobile replaced by .lamp-mobile-panel below
           ========================================================================= */}
-      <div className={`lamp-right-panel ${isLampOn ? 'lit' : 'dark'}`}>
+      <div className={`lamp-right-panel lamp-right-desktop ${isLampOn ? 'lit' : 'dark'}`}>
         <AnimatePresence>
           {isLampOn && (
             /* Lamp ON: The clean, modern PlacePro Register Form slides & fades in smoothly */
@@ -183,104 +185,31 @@ export default function RegisterPage() {
               <form onSubmit={handleSubmit}>
                 <div className="form-group" style={{ marginBottom: 11 }}>
                   <label className="form-label" htmlFor="reg-name" style={{ marginBottom: 4, fontSize: 12 }}>Full Name</label>
-                  <input
-                    id="reg-name"
-                    name="name"
-                    type="text"
-                    className="form-input"
-                    placeholder="Arjun Sharma"
-                    value={form.name}
-                    onChange={handleChange}
-                    required
-                    autoComplete="name"
-                    style={{ padding: '8px 12px', fontSize: 13 }}
-                  />
+                  <input id="reg-name" name="name" type="text" className="form-input" placeholder="Arjun Sharma" value={form.name} onChange={handleChange} required autoComplete="name" style={{ padding: '8px 12px', fontSize: 13 }} />
                 </div>
-
                 <div className="form-group" style={{ marginBottom: 11 }}>
                   <label className="form-label" htmlFor="reg-email" style={{ marginBottom: 4, fontSize: 12 }}>Email</label>
-                  <input
-                    id="reg-email"
-                    name="email"
-                    type="email"
-                    className="form-input"
-                    placeholder="name@university.edu"
-                    value={form.email}
-                    onChange={handleChange}
-                    required
-                    autoComplete="email"
-                    style={{ padding: '8px 12px', fontSize: 13 }}
-                  />
+                  <input id="reg-email" name="email" type="email" className="form-input" placeholder="name@university.edu" value={form.email} onChange={handleChange} required autoComplete="email" style={{ padding: '8px 12px', fontSize: 13 }} />
                 </div>
-
                 <div className="form-group" style={{ marginBottom: 11 }}>
                   <label className="form-label" htmlFor="reg-password" style={{ marginBottom: 4, fontSize: 12 }}>Password</label>
-                  <input
-                    id="reg-password"
-                    name="password"
-                    type="password"
-                    className="form-input"
-                    placeholder="········"
-                    value={form.password}
-                    onChange={handleChange}
-                    required
-                    autoComplete="new-password"
-                    style={{ padding: '8px 12px', fontSize: 13 }}
-                  />
+                  <input id="reg-password" name="password" type="password" className="form-input" placeholder="········" value={form.password} onChange={handleChange} required autoComplete="new-password" style={{ padding: '8px 12px', fontSize: 13 }} />
                 </div>
-
                 <div className="form-group" style={{ marginBottom: 11 }}>
                   <label className="form-label" htmlFor="reg-college" style={{ marginBottom: 4, fontSize: 12 }}>College / University</label>
-                  <input
-                    id="reg-college"
-                    name="college"
-                    type="text"
-                    className="form-input"
-                    placeholder="IIT Delhi"
-                    value={form.college}
-                    onChange={handleChange}
-                    required
-                    style={{ padding: '8px 12px', fontSize: 13 }}
-                  />
+                  <input id="reg-college" name="college" type="text" className="form-input" placeholder="IIT Delhi" value={form.college} onChange={handleChange} required style={{ padding: '8px 12px', fontSize: 13 }} />
                 </div>
-
                 <div className="form-row" style={{ gap: 10, marginBottom: 12 }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label" htmlFor="reg-branch" style={{ marginBottom: 4, fontSize: 12 }}>Branch</label>
-                    <input
-                      id="reg-branch"
-                      name="branch"
-                      type="text"
-                      className="form-input"
-                      placeholder="Computer Science"
-                      value={form.branch}
-                      onChange={handleChange}
-                      required
-                      style={{ padding: '8px 12px', fontSize: 13 }}
-                    />
+                    <input id="reg-branch" name="branch" type="text" className="form-input" placeholder="Computer Science" value={form.branch} onChange={handleChange} required style={{ padding: '8px 12px', fontSize: 13 }} />
                   </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label" htmlFor="reg-gradYear" style={{ marginBottom: 4, fontSize: 12 }}>Grad Year</label>
-                    <input
-                      id="reg-gradYear"
-                      name="gradYear"
-                      type="text"
-                      className="form-input"
-                      placeholder="2027"
-                      value={form.gradYear}
-                      onChange={handleChange}
-                      required
-                      style={{ padding: '8px 12px', fontSize: 13 }}
-                    />
+                    <input id="reg-gradYear" name="gradYear" type="text" className="form-input" placeholder="2027" value={form.gradYear} onChange={handleChange} required style={{ padding: '8px 12px', fontSize: 13 }} />
                   </div>
                 </div>
-
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  disabled={loading}
-                  style={{ marginTop: 8 }}
-                >
+                <button type="submit" className="btn-primary" disabled={loading} style={{ marginTop: 8 }}>
                   {loading ? 'Creating account...' : <>Create account <ArrowRight size={15} /></>}
                 </button>
               </form>
@@ -292,6 +221,60 @@ export default function RegisterPage() {
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
+
+      {/* =========================================================================
+          MOBILE PANEL: Always-visible form, no lamp interaction required
+          Shown only on mobile (≤640px) via CSS; hidden on desktop
+          ========================================================================= */}
+      <div className="lamp-mobile-panel">
+        <div className="lamp-mobile-logo">
+          <PlaceProLogo size="md" color="#0062ff" />
+        </div>
+
+        <div className="auth-form-container" style={{ maxWidth: 440 }}>
+          <h2 className="auth-form-heading">Create account</h2>
+          <p className="auth-form-subheading">Join your university's placement portal.</p>
+
+          {error && <div className="form-error">{error}</div>}
+
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label className="form-label" htmlFor="m-reg-name">Full Name</label>
+              <input id="m-reg-name" name="name" type="text" className="form-input" placeholder="Arjun Sharma" value={form.name} onChange={handleChange} required autoComplete="name" />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="m-reg-email">Email</label>
+              <input id="m-reg-email" name="email" type="email" className="form-input" placeholder="name@university.edu" value={form.email} onChange={handleChange} required autoComplete="email" />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="m-reg-password">Password</label>
+              <input id="m-reg-password" name="password" type="password" className="form-input" placeholder="········" value={form.password} onChange={handleChange} required autoComplete="new-password" />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="m-reg-college">College / University</label>
+              <input id="m-reg-college" name="college" type="text" className="form-input" placeholder="IIT Delhi" value={form.college} onChange={handleChange} required />
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label" htmlFor="m-reg-branch">Branch</label>
+                <input id="m-reg-branch" name="branch" type="text" className="form-input" placeholder="Computer Science" value={form.branch} onChange={handleChange} required />
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="m-reg-gradYear">Grad Year</label>
+                <input id="m-reg-gradYear" name="gradYear" type="text" className="form-input" placeholder="2027" value={form.gradYear} onChange={handleChange} required />
+              </div>
+            </div>
+            <button type="submit" className="btn-primary" disabled={loading} style={{ marginTop: 8 }}>
+              {loading ? 'Creating account...' : <>Create account <ArrowRight size={15} /></>}
+            </button>
+          </form>
+
+          <p className="auth-footer-text">
+            Already have an account?{' '}
+            <Link to="/login" className="auth-footer-link">Sign In</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -339,7 +322,7 @@ export function OriginalRegisterPage() {
     <div className="auth-page">
       <div className="auth-left">
         <div className="auth-left-logo">
-          <PlaceProLogo size="md" dark />
+          <PlaceProLogo size="md" color="#60a5fa" dark />
         </div>
         <div className="auth-left-content">
           <div className="auth-label">GET STARTED</div>

@@ -253,25 +253,25 @@
   max-height: 100vh;
   width: 100%;
   overflow: hidden;
-  background: #060709;
+  background: #0c2461;
   position: relative;
   font-family: inherit;
 }
 
-/* --- Left Side (50%) Dark Lamp Section --- */
+/* --- Left Side (50%) Blue Lamp Section --- */
 .lamp-left-panel {
   width: 50%;
   height: 100vh;
   max-height: 100vh;
   position: relative;
-  background: #060709;
+  background: linear-gradient(155deg, #0c2461 0%, #1a4aba 55%, #1565c0 100%);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 24px 32px;
   overflow: hidden;
   z-index: 2;
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
   box-sizing: border-box;
 }
 
@@ -283,29 +283,34 @@
   flex-shrink: 0;
 }
 
+/* Status pill — white background, blue text */
 .lamp-status-indicator {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  font-weight: 600;
-  padding: 4px 11px;
+  font-weight: 700;
+  padding: 5px 12px;
   border-radius: 16px;
   transition: all 0.3s ease;
   user-select: none;
+  background: #ffffff;
+  color: #0c2461;
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .lamp-status-indicator.on {
-  background: rgba(255, 190, 70, 0.15);
-  color: #ffbe3b;
-  border: 1px solid rgba(255, 190, 70, 0.3);
-  box-shadow: 0 0 10px rgba(255, 190, 70, 0.15);
+  background: #ffffff;
+  color: #0062ff;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
 }
 
 .lamp-status-indicator.off {
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.92);
+  color: #0c2461;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
 }
 
 .lamp-status-dot {
@@ -316,12 +321,13 @@
 }
 
 .lamp-status-indicator.on .lamp-status-dot {
-  background: #ffbe3b;
-  box-shadow: 0 0 6px #ffbe3b;
+  background: #0062ff;
+  box-shadow: 0 0 5px #0062ff;
 }
 
 .lamp-status-indicator.off .lamp-status-dot {
-  background: rgba(255, 255, 255, 0.3);
+  background: #0c2461;
+  opacity: 0.5;
 }
 
 /* Central Stage - Static Position Invariant to ON/OFF state */
@@ -352,7 +358,7 @@
 .lamp-ceiling-mount {
   width: 22px;
   height: 4px;
-  background: #aa820a;
+  background: rgba(255, 255, 255, 0.4);
   border-radius: 2px 2px 0 0;
   z-index: 10;
 }
@@ -360,7 +366,7 @@
 .lamp-suspension-wire {
   width: 2px;
   height: 30px;
-  background: #2a2d36;
+  background: rgba(255, 255, 255, 0.25);
   z-index: 9;
 }
 
@@ -449,7 +455,7 @@
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.16em;
-  color: #ffbe3b;
+  color: rgba(255, 255, 255, 0.75);
   text-transform: uppercase;
   margin-bottom: 8px;
 }
@@ -478,13 +484,13 @@
   justify-content: space-between;
   z-index: 10;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
   flex-shrink: 0;
 }
 
 .lamp-footer-text {
   font-size: 11.5px;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.5);
   line-height: 1.4;
 }
 
@@ -605,6 +611,91 @@
 
   .lamp-welcome-content .auth-left-desc {
     font-size: 13px;
+  }
+}
+
+/* Mobile panel — always-visible form, no lamp interaction */
+.lamp-mobile-panel {
+  display: none;
+}
+
+/* Responsive Styles for Lamp Login */
+@media (max-width: 900px) {
+  .lamp-login-page {
+    flex-direction: column;
+    height: auto;
+    max-height: none;
+    overflow-y: auto;
+  }
+
+  .lamp-left-panel {
+    width: 100%;
+    height: auto;
+    min-height: 420px;
+    padding: 24px;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .lamp-right-panel {
+    width: 100%;
+    height: auto;
+    min-height: 480px;
+    padding: 32px 20px;
+  }
+
+  .lamp-welcome-content .auth-left-heading {
+    font-size: 26px;
+  }
+
+  .lamp-welcome-content .auth-left-desc {
+    font-size: 13px;
+  }
+}
+
+/* Mobile: hide lamp entirely, show direct form */
+@media (max-width: 640px) {
+  /* Flip the page to a plain white bg */
+  .lamp-login-page {
+    background: #ffffff;
+    display: block;
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  /* Hide the entire lamp left panel */
+  .lamp-left-panel {
+    display: none !important;
+  }
+
+  /* Hide the desktop lamp-gated right panel */
+  .lamp-right-desktop {
+    display: none !important;
+  }
+
+  /* Show the always-visible mobile form panel */
+  .lamp-mobile-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 24px 56px;
+    background: #ffffff;
+    min-height: 100vh;
+  }
+
+  .lamp-mobile-logo {
+    margin-bottom: 32px;
+    align-self: flex-start;
+  }
+
+  .lamp-mobile-panel .auth-form-container {
+    width: 100%;
+  }
+
+  /* Stack the branch/grad year row on very small screens */
+  .lamp-mobile-panel .form-row {
+    grid-template-columns: 1fr;
   }
 }
 

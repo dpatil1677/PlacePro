@@ -71,11 +71,12 @@ export default function LoginPage() {
     <div className="lamp-login-page">
       {/* =========================================================================
           LEFT SIDE (50%): Solid black background with static lamp & welcome text
+          Hidden on mobile via CSS
           ========================================================================= */}
       <div className="lamp-left-panel">
         {/* Top Header: PlacePro Logo & Lamp Status */}
         <div className="lamp-left-header">
-          <PlaceProLogo size="md" variant="lamp" />
+          <PlaceProLogo size="md" color="#60a5fa" dark />
           <div className={`lamp-status-indicator ${isLampOn ? 'on' : 'off'}`}>
             <span className="lamp-status-dot" />
             <span>{isLampOn ? 'LIGHT ON' : 'LIGHT OFF'}</span>
@@ -149,8 +150,9 @@ export default function LoginPage() {
 
       {/* =========================================================================
           RIGHT SIDE (50%): Empty when Lamp is OFF, Smoothly reveals Login Form when ON
+          On mobile this panel is replaced by .lamp-mobile-panel below
           ========================================================================= */}
-      <div className={`lamp-right-panel ${isLampOn ? 'lit' : 'dark'}`}>
+      <div className={`lamp-right-panel lamp-right-desktop ${isLampOn ? 'lit' : 'dark'}`}>
         <AnimatePresence>
           {isLampOn && (
             /* Lamp ON: The clean, modern PlacePro Login Form slides & fades in smoothly */
@@ -229,6 +231,76 @@ export default function LoginPage() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* =========================================================================
+          MOBILE PANEL: Always-visible form, no lamp interaction required
+          Shown only on mobile (≤640px) via CSS; hidden on desktop
+          ========================================================================= */}
+      <div className="lamp-mobile-panel">
+        <div className="lamp-mobile-logo">
+          <PlaceProLogo size="md" color="#0062ff" />
+        </div>
+
+        <div className="auth-form-container" style={{ maxWidth: 420 }}>
+          <h2 className="auth-form-heading">Sign in</h2>
+          <p className="auth-form-subheading">
+            Enter your credentials to access your account.
+          </p>
+
+          {error && <div className="form-error">{error}</div>}
+
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label className="form-label" htmlFor="m-login-email">Email</label>
+              <input
+                id="m-login-email"
+                type="email"
+                className="form-input"
+                placeholder="name@university.edu"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="m-login-password">Password</label>
+              <input
+                id="m-login-password"
+                type="password"
+                className="form-input"
+                placeholder="········"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={loading}
+            >
+              {loading ? 'Signing in...' : <>Sign in <ArrowRight size={16} /></>}
+            </button>
+          </form>
+
+          <p className="auth-footer-text">
+            Don't have an account?{' '}
+            <Link to="/register" className="auth-footer-link">Create one</Link>
+          </p>
+
+          <div className="demo-card">
+            <div className="demo-card-title">DEMO CREDENTIALS</div>
+            <div className="demo-card-text">
+              Student: student@placepro.com / Demo@1234<br />
+              Admin: admin@placepro.com / Demo@1234
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -271,7 +343,7 @@ export function OriginalLoginPage() {
       {/ * Left Side * /}
       <div className="auth-left">
         <div className="auth-left-logo">
-          <PlaceProLogo size="md" dark />
+          <PlaceProLogo size="md" color="#60a5fa" dark />
         </div>
 
         <div className="auth-left-content">
