@@ -76,7 +76,7 @@ export default function LoginPage() {
       <div className="lamp-left-panel">
         {/* Top Header: PlacePro Logo & Lamp Status */}
         <div className="lamp-left-header">
-          <PlaceProLogo size="md" color="#FBBF24" dark />
+          <PlaceProLogo size="md" color="#FBBF24" dark variant="auth" />
           <div className={`lamp-status-indicator ${isLampOn ? 'on' : 'off'}`}>
             <span className="lamp-status-dot" />
             <span>{isLampOn ? 'LIGHT ON' : 'LIGHT OFF'}</span>
@@ -229,7 +229,7 @@ export default function LoginPage() {
           ========================================================================= */}
       <div className="lamp-mobile-panel">
         <div className="lamp-mobile-logo">
-          <PlaceProLogo size="md" color="#0062ff" />
+          <PlaceProLogo size="md" color="#0062ff" variant="auth" />
         </div>
 
         <div className="auth-form-container" style={{ maxWidth: 420 }}>
@@ -327,7 +327,7 @@ export function OriginalLoginPage() {
       {/ * Left Side * /}
       <div className="auth-left">
         <div className="auth-left-logo">
-          <PlaceProLogo size="md" color="#60a5fa" dark />
+          <PlaceProLogo size="md" color="#60a5fa" dark variant="auth" />
         </div>
 
         <div className="auth-left-content">

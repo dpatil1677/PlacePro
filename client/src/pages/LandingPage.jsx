@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { X, ChevronRight, ArrowRight } from 'lucide-react';
 import PlaceProLogo from '../components/PlaceProLogo';
@@ -48,30 +48,39 @@ const features = [
 export default function LandingPage() {
   const [announcementVisible, setAnnouncementVisible] = useState(true);
   const navigate = useNavigate();
+  const wrap = useRef(null);
+
+  useEffect(() => {
+    const el = wrap.current;
+    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let raf = 0;
+    const update = () => {
+      const total = el.offsetHeight - window.innerHeight;
+      if (total <= 0) return;
+      const p = Math.min(1, Math.max(0, -el.getBoundingClientRect().top / total));
+      el.style.setProperty('--p', p.toFixed(4));
+      raf = 0;
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   // Duplicate for seamless scroll loop
   const allCompanies = [...companies, ...companies];
 
   return (
     <div className="landing-page">
-      {/* Announcement Bar */}
-      {announcementVisible && (
-        <div className="announcement-bar">
-          <div className="announcement-bar-text">
-            <span className="announcement-glow-dot" aria-hidden="true"></span>
-            <span>Placement Season 2026 is Live —</span>
-            <span className="announcement-bar-link">View upcoming drives →</span>
-          </div>
-          <button
-            className="announcement-bar-close"
-            onClick={() => setAnnouncementVisible(false)}
-            aria-label="Close announcement"
-          >
-            <X size={15} />
-          </button>
-        </div>
-      )}
-
       {/* Navbar */}
       <nav className="navbar">
         <div className="navbar-logo">
@@ -97,73 +106,72 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="hero-wrapper">
-        <div className="hero">
-          {/* Left Column */}
-          <div className="hero-left">
-            <h1 className="hero-heading">
-              The complete stack<br />
-              for campus success.
+      {/* Hero Section — Pinned Scroll-Driven Animation */}
+      <section className="hero-wrap" ref={wrap}>
+        <div className="hero-stick">
+          <div className="hero-art">
+            <svg
+              className="hero-mountains"
+              viewBox="0 0 1440 520"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <polygon points="0,520 0,300 180,180 330,280 520,120 760,300 980,150 1180,290 1440,200 1440,520" fill="#E3EBFF" />
+              <polygon points="0,520 0,380 220,260 420,360 640,230 900,380 1120,280 1440,400 1440,520" fill="#BFD0FB" />
+              <polygon points="0,520 0,450 300,360 560,450 820,340 1100,450 1440,380 1440,520" fill="#8FAEF7" />
+            </svg>
+
+            <h1 className="hero-title landing-hero-title" aria-label="PLACEPRO">
+              <span className="l" aria-hidden="true">PLACE</span>
+              <span className="r" aria-hidden="true">PRO</span>
             </h1>
-            <p className="hero-desc">
-              PlacePro is batteries-included so every student can master aptitude, coding,
-              interviews, and resume building — and land their dream job at ridiculous speed.
-            </p>
-            <div className="hero-buttons">
-              <Link to="/register">
-                <button className="btn-hero-primary">
-                  Start Preparing for Free <ArrowRight size={16} />
-                </button>
-              </Link>
-              <Link to="/login">
-                <button className="btn-hero-secondary">
-                  University Login
-                </button>
-              </Link>
+
+            <svg
+              className="hero-person"
+              viewBox="0 0 400 560"
+              role="img"
+              aria-label="Illustration of a smiling student wearing glasses and a blue jacket"
+            >
+              <path d="M40 560 L70 340 Q200 290 330 340 L360 560 Z" fill="#2557F6" />
+              <path d="M160 322 L200 430 L240 322 Z" fill="#FFFFFF" />
+              <rect x="180" y="262" width="40" height="70" fill="#D9A27C" />
+              <ellipse cx="200" cy="205" rx="62" ry="72" fill="#E8B48E" />
+              <circle cx="148" cy="148" r="24" fill="#1B1B22" />
+              <circle cx="182" cy="124" r="26" fill="#1B1B22" />
+              <circle cx="222" cy="124" r="26" fill="#1B1B22" />
+              <circle cx="256" cy="148" r="24" fill="#1B1B22" />
+              <path d="M138 190 Q150 150 200 150 Q250 150 262 190 Q240 168 200 168 Q160 168 138 190 Z" fill="#1B1B22" />
+              <circle cx="172" cy="210" r="17" fill="none" stroke="#1B1B22" strokeWidth="4" />
+              <circle cx="228" cy="210" r="17" fill="none" stroke="#1B1B22" strokeWidth="4" />
+              <path d="M189 210 L211 210" stroke="#1B1B22" strokeWidth="4" />
+              <path d="M178 242 Q200 262 222 242" fill="none" stroke="#8A4B3A" strokeWidth="4" strokeLinecap="round" />
+              <path d="M120 360 L140 560 M280 360 L260 560" stroke="#1B2A5C" strokeWidth="14" strokeLinecap="round" />
+            </svg>
+          </div>
+
+          <div className="hero-tiles">
+            <div className="hero-tile">
+              <span className="hero-tile-val">50K+</span>
+              <span className="hero-tile-label">Students Placed</span>
             </div>
-            {/* Rating strip */}
-            <div className="hero-rating">
-              <div className="hero-rating-avatars">
-                {['#ef4444', '#7c3aed', '#0062ff', '#10b981', '#ea580c'].map((color, i) => (
-                  <div key={i} className="rating-avatar" style={{ background: color }}>
-                    {String.fromCharCode(65 + i)}
-                  </div>
-                ))}
-              </div>
-              <div className="hero-rating-info">
-                <div className="hero-rating-stars">★★★★★</div>
-                <div className="hero-rating-text">
-                  <strong>4.9</strong> rated by 12,000+ students
-                </div>
-              </div>
+            <div className="hero-tile">
+              <span className="hero-tile-val">300+</span>
+              <span className="hero-tile-label">Partner Companies</span>
+            </div>
+            <div className="hero-tile">
+              <span className="hero-tile-val">4.9 ★</span>
+              <span className="hero-tile-label">Student Rating</span>
             </div>
           </div>
 
-          {/* Right Column — Large Student with Laptop */}
-          <div className="hero-visual">
-            <div className="hero-visual-backdrop" aria-hidden="true"></div>
-            {/* Playful blue doodle accents matching reference */}
-            <div className="hero-doodle-sparks" aria-hidden="true">
-              <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
-                <line x1="8" y1="26" x2="14" y2="17" stroke="#0062ff" strokeWidth="2.8" strokeLinecap="round" />
-                <line x1="21" y1="21" x2="23" y2="9" stroke="#0062ff" strokeWidth="2.8" strokeLinecap="round" />
-                <line x1="31" y1="21" x2="25" y2="14" stroke="#0062ff" strokeWidth="2.8" strokeLinecap="round" />
-              </svg>
+          <div className="hero-cta">
+            <div className="hero-tagline">The complete stack for campus success.</div>
+            <div className="hero-subtext">
+              Master aptitude, coding, interviews and resume building, and land your dream job at ridiculous speed.
             </div>
-            <div className="hero-doodle-swoosh" aria-hidden="true">
-              <svg width="90" height="60" viewBox="0 0 90 60" fill="none">
-                <path d="M4 48C30 32 60 16 88 12" stroke="#38bdf8" strokeWidth="2.2" strokeLinecap="round" />
-              </svg>
-            </div>
-            <div className="hero-student-wrapper">
-              <img
-                src={heroStudentImg}
-                alt="Student learning on PlacePro with laptop"
-                className="hero-student-img"
-                loading="eager"
-                fetchPriority="high"
-              />
+            <div className="hero-buttons">
+              <Link className="bt" to="/register">Start Preparing for Free</Link>
+              <Link className="b2" to="/login">University Login</Link>
             </div>
           </div>
         </div>
