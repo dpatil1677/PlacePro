@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FileText, BookOpen, Code2, MessageSquare,
@@ -32,28 +32,53 @@ export default function StudentLayout({ children }) {
     navigate('/login');
   };
 
+  // Lock body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [sidebarOpen]);
+
+  const closeSidebar = () => setSidebarOpen(false);
+
   return (
     <div className="dashboard-layout">
-      {/* Mobile toggle */}
-      <button
-        className="sidebar-toggle"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        aria-label="Toggle sidebar"
-      >
-        {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
-      </button>
+      {/* Mobile header bar */}
+      <div className="mobile-header">
+        <button
+          className="sidebar-toggle"
+          onClick={() => setSidebarOpen(prev => !prev)}
+          aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+        >
+          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+        <div className="mobile-header-logo">
+          <PlaceProLogo size="sm" dark={false} />
+        </div>
+      </div>
 
       {/* Overlay */}
       {sidebarOpen && (
-        <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
+        <div className="sidebar-overlay" onClick={closeSidebar} aria-hidden="true" />
       )}
 
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-logo">
-          <Link to="/" onClick={() => setSidebarOpen(false)}>
+          <Link to="/" onClick={closeSidebar}>
             <PlaceProLogo size="sm" dark />
           </Link>
+          {/* Close button visible only on mobile inside sidebar */}
+          <button
+            className="sidebar-close-btn"
+            onClick={closeSidebar}
+            aria-label="Close sidebar"
+          >
+            <X size={18} />
+          </button>
         </div>
 
         <nav className="sidebar-nav">
@@ -64,7 +89,7 @@ export default function StudentLayout({ children }) {
               className={({ isActive }) =>
                 `sidebar-nav-item${isActive ? ' active' : ''}`
               }
-              onClick={() => setSidebarOpen(false)}
+              onClick={closeSidebar}
             >
               <Icon size={17} className="sidebar-nav-icon" />
               {label}

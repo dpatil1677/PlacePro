@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Briefcase, BookOpen, BarChart2,
@@ -34,28 +34,52 @@ export default function AdminLayout({ children, headerTitle = 'ADMIN PORTAL' }) 
   const getInitials = (name = '') =>
     name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
 
+  // Lock body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [sidebarOpen]);
+
+  const closeSidebar = () => setSidebarOpen(false);
+
   return (
     <div className="dashboard-layout">
-      {/* Mobile toggle */}
-      <button
-        className="sidebar-toggle"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        aria-label="Toggle sidebar"
-      >
-        {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
-      </button>
+      {/* Mobile header bar */}
+      <div className="mobile-header">
+        <button
+          className="sidebar-toggle"
+          onClick={() => setSidebarOpen(prev => !prev)}
+          aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+        >
+          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+        <div className="mobile-header-title">{headerTitle}</div>
+      </div>
 
+      {/* Overlay */}
       {sidebarOpen && (
-        <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
+        <div className="sidebar-overlay" onClick={closeSidebar} aria-hidden="true" />
       )}
 
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-logo">
-          <Link to="/" onClick={() => setSidebarOpen(false)}>
+          <Link to="/" onClick={closeSidebar}>
             <PlaceProLogo size="sm" dark />
           </Link>
           <span className="sidebar-admin-badge">ADMIN</span>
+          {/* Close button visible only on mobile inside sidebar */}
+          <button
+            className="sidebar-close-btn"
+            onClick={closeSidebar}
+            aria-label="Close sidebar"
+          >
+            <X size={18} />
+          </button>
         </div>
 
         <nav className="sidebar-nav">
@@ -67,7 +91,7 @@ export default function AdminLayout({ children, headerTitle = 'ADMIN PORTAL' }) 
               className={({ isActive }) =>
                 `sidebar-nav-item${isActive ? ' active' : ''}`
               }
-              onClick={() => setSidebarOpen(false)}
+              onClick={closeSidebar}
             >
               <Icon size={17} className="sidebar-nav-icon" />
               <span style={{ flex: 1 }}>{label}</span>
