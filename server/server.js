@@ -13,6 +13,7 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
   'https://place-pro-smoky.vercel.app',
+  "https://www.place-pro.site',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
