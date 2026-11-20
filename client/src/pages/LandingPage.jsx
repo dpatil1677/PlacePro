@@ -306,8 +306,8 @@ export default function LandingPage() {
           <li><a href="#companies">Companies</a></li>
           <li><a href="#universities">Universities</a></li>
           <li><Link to="/docs">Docs</Link></li>
-          <li><a href="#">Privacy</a></li>
-          <li><a href="#">Terms</a></li>
+          <li><Link to="/privacy">Privacy</Link></li>
+          <li><Link to="/terms">Terms</Link></li>
         </ul>
         <span className="footer-copy">© 2026 PlacePro. All rights reserved.</span>
       </footer>

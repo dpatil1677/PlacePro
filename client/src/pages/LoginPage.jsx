@@ -76,7 +76,7 @@ export default function LoginPage() {
       <div className="lamp-left-panel">
         {/* Top Header: PlacePro Logo & Lamp Status */}
         <div className="lamp-left-header">
-          <PlaceProLogo size="md" color="#60a5fa" dark />
+          <PlaceProLogo size="md" color="#FBBF24" dark />
           <div className={`lamp-status-indicator ${isLampOn ? 'on' : 'off'}`}>
             <span className="lamp-status-dot" />
             <span>{isLampOn ? 'LIGHT ON' : 'LIGHT OFF'}</span>
@@ -282,14 +282,7 @@ export default function LoginPage() {
             Don't have an account?{' '}
             <Link to="/register" className="auth-footer-link">Create one</Link>
           </p>
-
-          <div className="demo-card">
-            <div className="demo-card-title">DEMO CREDENTIALS</div>
-            <div className="demo-card-text">
-              Student: student@placepro.com / Demo@1234<br />
-              Admin: admin@placepro.com / Demo@1234
-            </div>
-          </div>
+          
         </div>
       </div>
     </div>
@@ -404,12 +397,6 @@ export function OriginalLoginPage() {
             <Link to="/register" className="auth-footer-link">Create one</Link>
           </p>
 
-          <div className="demo-card">
-            <div className="demo-card-title">DEMO CREDENTIALS</div>
-            <div className="demo-card-text">
-              Student: student@placepro.com / Demo@1234<br />
-              Admin: admin@placepro.com / Demo@1234
-            </div>
           </div>
         </div>
       </div>

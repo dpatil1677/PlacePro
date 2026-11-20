@@ -81,7 +81,7 @@ export default function RegisterPage() {
       <div className="lamp-left-panel">
         {/* Top Header: PlacePro Logo & Lamp Status */}
         <div className="lamp-left-header">
-          <PlaceProLogo size="md" color="#60a5fa" dark />
+          <PlaceProLogo size="md" color="#FBBF24" dark />
           <div className={`lamp-status-indicator ${isLampOn ? 'on' : 'off'}`}>
             <span className="lamp-status-dot" />
             <span>{isLampOn ? 'LIGHT ON' : 'LIGHT OFF'}</span>
