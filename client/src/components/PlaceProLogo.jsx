@@ -34,7 +34,7 @@ export default function PlaceProLogo({ size = 'md', dark = false, color = '#0062
               fontWeight: 900,
               fontSize: s.box * 0.52,
               lineHeight: 1,
-              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+              fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif",
             }}
           >
             P
@@ -46,7 +46,7 @@ export default function PlaceProLogo({ size = 'md', dark = false, color = '#0062
             fontSize: s.text,
             color: dark ? '#fff' : '#0B1224',
             letterSpacing: '-0.3px',
-            fontFamily: 'Inter, sans-serif',
+            fontFamily: "'Shantell Sans', cursive, sans-serif",
           }}
         >
           PlacePro
@@ -75,7 +75,7 @@ export default function PlaceProLogo({ size = 'md', dark = false, color = '#0062
           fontSize: s.text,
           color: dark ? '#ffffff' : '#0B1224',
           letterSpacing: '-0.3px',
-          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+          fontFamily: "'Shantell Sans', cursive, sans-serif",
         }}
       >
         PlacePro

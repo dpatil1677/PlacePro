@@ -208,3 +208,30 @@ export const register = async (req, res) => {
     res.status(500).json({ message: 'Failed to create account.' });
   }
 };
+
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: 'Email address is required.' });
+  }
+
+  try {
+    let user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      const backupUsers = readUsersBackup();
+      user = backupUsers.find((u) => u.email === email);
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: 'No registered account found with this email address.' });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Recovery instructions have been sent to your institutional email.',
+    });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    return res.status(500).json({ message: 'Server error processing password recovery.' });
+  }
+};

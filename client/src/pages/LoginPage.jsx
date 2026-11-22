@@ -30,7 +30,12 @@ function playClickSound(isOn) {
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [rememberMe, setRememberMe] = useState(() => {
+    return localStorage.getItem('pp_remember_me') === 'true';
+  });
+  const [email, setEmail] = useState(() => {
+    return localStorage.getItem('pp_remembered_email') || '';
+  });
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -53,7 +58,15 @@ export default function LoginPage() {
 
     try {
       const data = await authService.login(email, password);
-      authService.saveSession(data.token, data.user);
+      authService.saveSession(data.token, data.user, rememberMe);
+
+      if (rememberMe) {
+        localStorage.setItem('pp_remember_me', 'true');
+        localStorage.setItem('pp_remembered_email', email);
+      } else {
+        localStorage.removeItem('pp_remember_me');
+        localStorage.removeItem('pp_remembered_email');
+      }
 
       if (data.user.role === 'admin') {
         navigate('/admin/dashboard');
@@ -205,6 +218,22 @@ export default function LoginPage() {
                   />
                 </div>
 
+                <div className="auth-options-row">
+                  <label className="auth-remember-label" htmlFor="login-remember">
+                    <input
+                      id="login-remember"
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="auth-remember-checkbox"
+                    />
+                    <span>Remember me</span>
+                  </label>
+                  <Link to="/forgot-password" className="auth-forgot-link">
+                    Forgot password?
+                  </Link>
+                </div>
+
                 <button
                   type="submit"
                   className="btn-primary"
@@ -267,6 +296,22 @@ export default function LoginPage() {
                 required
                 autoComplete="current-password"
               />
+            </div>
+
+            <div className="auth-options-row">
+              <label className="auth-remember-label" htmlFor="m-login-remember">
+                <input
+                  id="m-login-remember"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="auth-remember-checkbox"
+                />
+                <span>Remember me</span>
+              </label>
+              <Link to="/forgot-password" className="auth-forgot-link">
+                Forgot password?
+              </Link>
             </div>
 
             <button

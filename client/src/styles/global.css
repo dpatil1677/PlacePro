@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shantell+Sans:wght@500;600;700;800&family=Exo+2:ital,wght@0,600..900;1,600..900&display=swap');
 
 /* ============================================
    CSS VARIABLES / DESIGN TOKENS
@@ -69,12 +69,93 @@ html {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: var(--color-text-primary);
   background: var(--color-bg-white);
   line-height: 1.5;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   CONSISTENT TYPOGRAPHY HIERARCHY
+   ============================================ */
+/* 800 for main headings */
+h1, h2, h3,
+.page-title,
+.section-heading,
+.hero-tagline,
+.auth-left-heading,
+.auth-form-heading,
+.modal-title,
+.welcome-hero .hero-title,
+.card-heading,
+.section-title {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 800;
+}
+
+/* 600 for navigation and buttons */
+nav,
+.navbar,
+.navbar-nav a,
+.btn-nav-primary,
+.btn-nav-secondary,
+button,
+.btn-primary,
+.btn-secondary,
+.bt,
+.b2,
+.sidebar-link,
+.sidebar-nav-item,
+.nav-tab,
+.tab-btn,
+.action-btn,
+.pagination-btn,
+.form-label,
+.auth-submit-btn,
+.btn {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 600;
+}
+
+/* 400 for body text */
+p,
+input,
+select,
+textarea,
+.form-input,
+.section-desc,
+.hero-subtext,
+.auth-form-subheading,
+.auth-left-desc,
+.table td,
+.card-desc,
+.sub-text,
+.desc-text {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+}
+
+/* 700–800 for statistics and highlights */
+.stat-value,
+.stat-num,
+.stat-card-value,
+.hero-tile-val,
+.hero-tile b,
+.badge,
+.stat-tag,
+.score-value,
+.metric-value,
+.pill,
+.section-pill,
+.feature-card-tag,
+.stat-highlight,
+.stat-percent,
+.readiness-score-big {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 800;
 }
 
 a {

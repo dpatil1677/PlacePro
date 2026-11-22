@@ -277,7 +277,7 @@ export default function InterviewSimPage() {
               style={{
                 width: '100%', padding: '14px 16px', borderRadius: 10,
                 border: '1.5px solid #e5e7eb', fontSize: 14, lineHeight: 1.6,
-                fontFamily: 'Inter, sans-serif', resize: 'vertical', color: '#0B1224',
+                fontFamily: "'Plus Jakarta Sans', sans-serif", resize: 'vertical', color: '#0B1224',
                 background: '#f9fafb', outline: 'none', boxSizing: 'border-box',
               }}
               onFocus={e => e.target.style.borderColor = '#0062ff'}
