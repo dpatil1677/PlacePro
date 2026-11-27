@@ -100,17 +100,26 @@ export async function sendOtpEmail(email, otp) {
   }
 
   try {
+    // Verify connection before sending
+    await transporter.verify();
+    console.log('[EMAIL] SMTP connection verified OK');
+
     const info = await transporter.sendMail({
       from,
       to: email,
-      subject: `Your PlacePro Password Recovery Code: ${otp}`,
+      subject: `Your PlacePro Password Recovery Code`,
       text: textContent,
       html: htmlContent,
     });
     console.log('[EMAIL SUCCESS] Sent OTP to:', email, 'MessageId:', info.messageId);
     return { delivered: true, messageId: info.messageId };
   } catch (error) {
-    console.error('[EMAIL ERROR] Failed to send email via SMTP:', error.message);
+    console.error('[EMAIL ERROR] Full error:', error);
+    console.error('[EMAIL ERROR] Code:', error.code);
+    console.error('[EMAIL ERROR] Response:', error.response);
+    console.error('[EMAIL ERROR] SMTP_USER:', process.env.SMTP_USER);
+    console.error('[EMAIL ERROR] SMTP_HOST:', process.env.SMTP_HOST || 'smtp.gmail.com');
+    console.error('[EMAIL ERROR] SMTP_PORT:', process.env.SMTP_PORT || '465');
     throw new Error(`Email delivery failed: ${error.message}`);
   }
 }

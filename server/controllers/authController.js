@@ -287,11 +287,13 @@ export const sendPasswordResetOtp = async (req, res) => {
     // 3. Generate cryptographically secure 6-digit numeric OTP
     const rawOtp = crypto.randomInt(100000, 1000000).toString();
 
-    // 4. Hash the OTP before storing in database
+    // 4. Send OTP via Nodemailer before saving cooldown record
+    await sendOtpEmail(cleanEmail, rawOtp);
+
+    // 5. Hash the OTP and save/upsert OTP record in SQLite only after email succeeds
     const otpHash = await bcrypt.hash(rawOtp, 10);
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes expiration
 
-    // 5. Save/upsert OTP record in SQLite
     await prisma.passwordResetOtp.upsert({
       where: { email: cleanEmail },
       update: {
@@ -312,10 +314,7 @@ export const sendPasswordResetOtp = async (req, res) => {
       },
     });
 
-    // 6. Send OTP via Nodemailer
-    await sendOtpEmail(cleanEmail, rawOtp);
-
-    // 7. Security: never return raw OTP in response
+    // 6. Security: never return raw OTP in response
     return res.json({
       success: true,
       message: 'Verification code sent to your email.',
