@@ -260,3 +260,15 @@ model ActivityLog {
   details   String?
   createdAt DateTime @default(now())
 }
+
+model PasswordResetOtp {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  otpHash    String
+  expiresAt  DateTime
+  attempts   Int      @default(0)
+  verified   Boolean  @default(false)
+  resetToken String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}

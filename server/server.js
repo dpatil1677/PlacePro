@@ -17,6 +17,49 @@ const allowedOrigins = [
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
+// ── Security headers (replaces helmet) ───────────────────────────────────────
+app.use((req, res, next) => {
+  // Content Security Policy — fixes the -25 MDN Observatory penalty
+  res.setHeader(
+    'Content-Security-Policy',
+    [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com",
+      "font-src 'self' https://fonts.gstatic.com data:",
+      "img-src 'self' data: blob: https:",
+      "connect-src 'self' https://placepro-1.onrender.com https://place-pro.site https://www.place-pro.site",
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "object-src 'none'",
+    ].join('; ')
+  );
+
+  // Prevent clickjacking
+  res.setHeader('X-Frame-Options', 'DENY');
+
+  // Stop browsers from MIME-sniffing
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+
+  // Only send referrer on same-origin requests
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+  // Force HTTPS for 1 year (production only)
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  }
+
+  // Disable browser features that PlacePro doesn't use
+  res.setHeader(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), payment=()'
+  );
+
+  next();
+});
+// ─────────────────────────────────────────────────────────────────────────────
+
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {

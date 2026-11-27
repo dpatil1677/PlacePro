@@ -35,7 +35,11 @@ export const authService = {
   },
 
   async forgotPassword(email) {
-    const res = await fetch(`${API_URL}/api/auth/forgot-password`, {
+    return this.sendPasswordResetOtp(email);
+  },
+
+  async sendPasswordResetOtp(email) {
+    const res = await fetch(`${API_URL}/api/auth/forgot-password/send-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
@@ -46,7 +50,39 @@ export const authService = {
     } catch {
       throw new Error(`Unable to reach server (${res.status} ${res.statusText || 'Bad Gateway'}).`);
     }
-    if (!res.ok) throw new Error(data.message || 'Password recovery request failed');
+    if (!res.ok) throw new Error(data.message || 'Failed to send verification code.');
+    return data;
+  },
+
+  async verifyPasswordResetOtp(email, otp) {
+    const res = await fetch(`${API_URL}/api/auth/forgot-password/verify-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, otp }),
+    });
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      throw new Error(`Unable to reach server (${res.status} ${res.statusText || 'Bad Gateway'}).`);
+    }
+    if (!res.ok) throw new Error(data.message || 'Verification failed. Please check the code.');
+    return data;
+  },
+
+  async resetPasswordWithOtp(email, resetToken, newPassword, confirmPassword) {
+    const res = await fetch(`${API_URL}/api/auth/forgot-password/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, resetToken, newPassword, confirmPassword }),
+    });
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      throw new Error(`Unable to reach server (${res.status} ${res.statusText || 'Bad Gateway'}).`);
+    }
+    if (!res.ok) throw new Error(data.message || 'Failed to reset password.');
     return data;
   },
 
