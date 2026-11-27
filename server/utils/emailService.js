@@ -19,7 +19,11 @@ function createTransporter() {
     host,
     port,
     secure,
-    auth: { user, pass },
+    family: 4,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
+    auth: { user, pass: pass.replace(/\s+/g, '') },
     tls: {
       rejectUnauthorized: process.env.NODE_ENV === 'production',
     },
@@ -87,6 +91,57 @@ export async function sendOtpEmail(email, otp) {
   `;
 
   const textContent = `PlacePro Password Recovery\n\nYour 6-digit verification code is: ${otp}\n\nThis code expires in 5 minutes. If you did not request this code, please ignore this email.`;
+
+  // 1. Prefer HTTPS-based email APIs when configured (never blocked by Render free tier)
+  if (process.env.BREVO_API_KEY) {
+    const senderEmail = process.env.SMTP_USER || process.env.GMAIL_USER || 'placepro16@gmail.com';
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        sender: { name: 'PlacePro', email: senderEmail },
+        to: [{ email }],
+        subject: 'Your PlacePro Password Recovery Code',
+        htmlContent,
+        textContent,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      console.error('[EMAIL ERROR] Brevo API failed:', res.status, data);
+      throw new Error(`Email delivery failed: ${data.message || res.statusText}`);
+    }
+    console.log('[EMAIL SUCCESS] Sent OTP via Brevo to:', email, 'MessageId:', data.messageId);
+    return { delivered: true, messageId: data.messageId };
+  }
+
+  if (process.env.RESEND_API_KEY) {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: process.env.EMAIL_FROM || 'PlacePro <onboarding@resend.dev>',
+        to: [email],
+        subject: 'Your PlacePro Password Recovery Code',
+        html: htmlContent,
+        text: textContent,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      console.error('[EMAIL ERROR] Resend API failed:', res.status, data);
+      throw new Error(`Email delivery failed: ${data.message || res.statusText}`);
+    }
+    console.log('[EMAIL SUCCESS] Sent OTP via Resend to:', email, 'MessageId:', data.id);
+    return { delivered: true, messageId: data.id };
+  }
 
   if (!transporter) {
     // If SMTP credentials are not yet configured in .env, log clearly for development
