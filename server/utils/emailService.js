@@ -92,7 +92,28 @@ export async function sendOtpEmail(email, otp) {
 
   const textContent = `PlacePro Password Recovery\n\nYour 6-digit verification code is: ${otp}\n\nThis code expires in 5 minutes. If you did not request this code, please ignore this email.`;
 
-  // 1. Prefer HTTPS-based email APIs when configured (never blocked by Render free tier)
+  // 1. Prefer HTTPS-based email options when configured (never blocked by Render free tier)
+  if (process.env.EMAIL_WEBHOOK_URL) {
+    const res = await fetch(process.env.EMAIL_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        secret: process.env.EMAIL_WEBHOOK_SECRET || '',
+        to: email,
+        subject: 'Your PlacePro Password Recovery Code',
+        html: htmlContent,
+        text: textContent,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.ok === false) {
+      console.error('[EMAIL ERROR] Webhook failed:', res.status, data);
+      throw new Error(`Email delivery failed: ${data.error || res.statusText}`);
+    }
+    console.log('[EMAIL SUCCESS] Sent OTP via HTTPS webhook to:', email);
+    return { delivered: true };
+  }
+
   if (process.env.BREVO_API_KEY) {
     const senderEmail = process.env.SMTP_USER || process.env.GMAIL_USER || 'placepro16@gmail.com';
     const res = await fetch('https://api.brevo.com/v3/smtp/email', {
