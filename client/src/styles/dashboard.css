@@ -273,7 +273,8 @@
   border-radius: 50%;
 }
 
-.welcome-hero .hero-title {
+.welcome-hero .hero-title,
+.dashboard-hero .hero-title {
   font-size: 34px;
   font-weight: 900;
   color: #0B1224;
@@ -1238,8 +1239,11 @@
     grid-template-columns: 1fr;
   }
 
-  .welcome-hero .hero-title {
+  .welcome-hero .hero-title,
+  .dashboard-hero .hero-title {
     font-size: 26px;
+    position: static;
+    white-space: normal;
   }
 }
 

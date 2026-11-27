@@ -97,6 +97,7 @@ export async function sendOtpEmail(email, otp) {
     const res = await fetch(process.env.EMAIL_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      redirect: 'follow',
       body: JSON.stringify({
         secret: process.env.EMAIL_WEBHOOK_SECRET || '',
         to: email,
@@ -105,8 +106,15 @@ export async function sendOtpEmail(email, otp) {
         text: textContent,
       }),
     });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || data.ok === false) {
+    const rawText = await res.text();
+    let data = {};
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      console.error('[EMAIL ERROR] Webhook returned non-JSON:', res.status, rawText.slice(0, 300));
+      throw new Error(`Email delivery failed: Webhook returned status ${res.status}`);
+    }
+    if (!res.ok || data.ok !== true) {
       console.error('[EMAIL ERROR] Webhook failed:', res.status, data);
       throw new Error(`Email delivery failed: ${data.error || res.statusText}`);
     }

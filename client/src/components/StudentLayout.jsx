@@ -56,7 +56,7 @@ export default function StudentLayout({ children }) {
           {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
         <div className="mobile-header-logo">
-          <PlaceProLogo size="sm" dark={false} />
+          <PlaceProLogo size="sm" dark />
         </div>
       </div>
 

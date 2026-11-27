@@ -405,7 +405,6 @@
     height: auto !important;
     overflow: hidden !important;
   }
-  .hero-title,
   .hero-wrap .hero-title,
   .landing-hero-title {
     font-size: min(17cqw, 17vw) !important;
